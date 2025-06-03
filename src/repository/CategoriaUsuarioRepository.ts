@@ -1,7 +1,7 @@
 import { CategoriaUsuarioEntity } from "../model/CategoriaUsuarioEntity";
 
 export const categoriasUsuario: CategoriaUsuarioEntity[] = [
-  new CategoriaUsuarioEntity(undefined, "Professor"),
-  new CategoriaUsuarioEntity(undefined, "Aluno"),
-  new CategoriaUsuarioEntity(undefined, "Bibliotecário")
+  new CategoriaUsuarioEntity(1, "Professor"),
+  new CategoriaUsuarioEntity(2, "Aluno"),
+  new CategoriaUsuarioEntity(3, "Bibliotecário"),
 ];
