@@ -18,7 +18,6 @@ class CatalogoController {
                 message: message,
             });
         }
-        this.catalogoService.listarCategoriasUsuarios();
     }
     listarCategoriasLivro(req, res) {
         try {

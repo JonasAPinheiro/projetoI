@@ -18,7 +18,6 @@ export class CatalogoController {
         message: message,
       });
     }
-    this.catalogoService.listarCategoriasUsuarios();
   }
 
   listarCategoriasLivro(req: Request, res: Response): void {

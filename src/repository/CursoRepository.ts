@@ -1,7 +1,7 @@
 import { CursoEntity } from "../model/CursoEntity";
 
 export const cursos: CursoEntity[] = [
-  new CursoEntity(1, "Adiministração"),
+  new CursoEntity(1, "Administração"),
   new CursoEntity(2, "Análise e Desenvolvimento de Sistemas"),
   new CursoEntity(3, "Educação Física"),
   new CursoEntity(4, "Engenharia da Computação"),

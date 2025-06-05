@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.cursos = void 0;
 const CursoEntity_1 = require("../model/CursoEntity");
 exports.cursos = [
-    new CursoEntity_1.CursoEntity(1, "Adiministração"),
+    new CursoEntity_1.CursoEntity(1, "Administração"),
     new CursoEntity_1.CursoEntity(2, "Análise e Desenvolvimento de Sistemas"),
     new CursoEntity_1.CursoEntity(3, "Educação Física"),
     new CursoEntity_1.CursoEntity(4, "Engenharia da Computação"),
