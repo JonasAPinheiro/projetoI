@@ -7,8 +7,10 @@ const express_1 = __importDefault(require("express"));
 const CatalogoController_1 = require("./controller/CatalogoController");
 const UsuarioController_1 = require("./controller/UsuarioController");
 const LivroController_1 = require("./controller/LivroController");
+const ExemplarController_1 = require("./controller/ExemplarController");
 const usuarioController = new UsuarioController_1.UsuarioController();
 const livroController = new LivroController_1.LivroController();
+const exemplarController = new ExemplarController_1.ExemplarController();
 const catalogoController = new CatalogoController_1.CatalogoController();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -25,6 +27,12 @@ app.get("/library/livros/:isbn", livroController.listarLivroPorIsbn.bind(livroCo
 app.post("/library/livros", livroController.cadastrarLivro.bind(livroController));
 app.put("/library/livros/:isbn", livroController.atualizarLivro.bind(livroController));
 app.delete("/library/livros/:isbn", livroController.removerLivro.bind(livroController));
+//Estoque
+app.get("/library/estoque", exemplarController.listarExemplares.bind(exemplarController));
+app.get("/library/estoque/:codigo", exemplarController.listarExemplarPorCodigo.bind(exemplarController));
+app.post("/library/estoque", exemplarController.cadastrarExemplar.bind(exemplarController));
+app.put("/library/estoque/:codigo", exemplarController.atualizarExemplar.bind(exemplarController));
+app.delete("/library/estoque/:codigo", exemplarController.removerExemplar.bind(exemplarController));
 //Catalogos
 app.get("/library/catalogos/categorias-usuario", catalogoController.listarCategoriasUsuario.bind(catalogoController));
 app.get("/library/catalogos/categorias-livro", catalogoController.listarCategoriasLivro.bind(catalogoController));
