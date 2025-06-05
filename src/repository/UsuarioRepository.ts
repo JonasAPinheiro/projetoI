@@ -36,6 +36,10 @@ export class UsuarioRepository {
     this.usuarioList.splice(index, 1);
   }
 
+  buscarUsuarioPorCpf(cpf: string): UsuarioEntity | undefined {
+    return this.usuarioList.find((u) => u.cpf === cpf);
+  }
+
   private findIndex(cpf: string): number {
     const index = this.usuarioList.findIndex((u) => u.cpf == cpf);
     if (index == -1) {

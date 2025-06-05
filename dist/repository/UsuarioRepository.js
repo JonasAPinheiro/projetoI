@@ -29,6 +29,9 @@ class UsuarioRepository {
         const index = this.findIndex(cpf);
         this.usuarioList.splice(index, 1);
     }
+    buscarUsuarioPorCpf(cpf) {
+        return this.usuarioList.find((u) => u.cpf === cpf);
+    }
     findIndex(cpf) {
         const index = this.usuarioList.findIndex((u) => u.cpf == cpf);
         if (index == -1) {
