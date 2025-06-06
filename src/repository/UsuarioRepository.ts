@@ -40,6 +40,10 @@ export class UsuarioRepository {
     return this.usuarioList.find((u) => u.cpf === cpf);
   }
 
+  buscarUsuarioPorId(id: number): UsuarioEntity | undefined {
+    return this.usuarioList.find((u) => u.id === id);
+  }
+
   private findIndex(cpf: string): number {
     const index = this.usuarioList.findIndex((u) => u.cpf == cpf);
     if (index == -1) {
