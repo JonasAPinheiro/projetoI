@@ -1,4 +1,5 @@
 import { LivroEntity } from "../model/LivroEntity";
+import { categoriasLivro } from "../repository/CategoriaLivroRepository";
 import { LivroRepository } from "../repository/LivroRepository";
 
 export class LivroService {
@@ -17,6 +18,9 @@ export class LivroService {
       throw new Error("Preencha todos os campos!!!");
     }
 
+    this.validarCategoria(data.categoriaId);
+    this.validarCombinacao(data.autor, data.editora, data.edicao);
+
     const livro = new LivroEntity(undefined, data.titulo, data.autor, data.editora, data.edicao, data.isbn, data.categoriaId);
 
     this.livroRepository.insereLivro(livro);
@@ -29,6 +33,8 @@ export class LivroService {
       throw new Error("Preencha todos os campos!!!");
     }
 
+    this.validarCategoria(data.categoriaId);
+
     const novoLivro = new LivroEntity(livroAtual.id, data.titulo, data.autor, data.editora, data.edicao, data.isbn, data.categoriaId);
 
     this.livroRepository.atualizaLivro(isbn, novoLivro);
@@ -38,5 +44,22 @@ export class LivroService {
 
   removeLivro(isbn: string) {
     this.livroRepository.removeLivro(isbn);
+  }
+
+  private validarCategoria(id: any): void {
+    if (!categoriasLivro.find(categoria => categoria.id === id)) 
+    {
+      throw new Error("Categoria não existe!!!");
+    }
+  }
+
+  private validarCombinacao(autor: string, editora: string, edicao: string): void {
+    const livros = this.livroRepository.exibirLivros(); 
+
+    const combinação = livros.find(livro => livro.autor == autor && livro.editora === editora &&livro.edicao == edicao);
+
+    if (combinação) {
+      throw new Error("Já existe um livro com essa combinação de autor, editora e edição!!!");
+    }
   }
 }
