@@ -20,7 +20,7 @@ class EmprestimoService {
         if (usuario.ativo != true) {
             throw new Error("Usuário inativo, não é possível realizar o empréstimo!!!");
         }
-        if (!data.usuarioId || !data.exemplarId || !data.dataEmprestimo || !data.dataDevolucao) {
+        if (!data.usuarioId || !data.exemplarId || !data.dataEmprestimo) {
             throw new Error("Preencha todos os campos!!!");
         }
         const emprestimosPendentes = this.emprestimoRepository.exibirEmprestimos()
@@ -35,7 +35,10 @@ class EmprestimoService {
         if (exemplar.quantidade <= exemplar.quantidadeEmprestada) {
             throw new Error("Exemplar não está disponível para empréstimo!!!");
         }
-        const emprestimo = new EmprestimoEntity_1.EmprestimoEntity(undefined, data.usuarioId, data.exemplarId, data.dataEmprestimo, data.dataDevolucao, null, 0, null);
+        const dataEmprestimo = new Date(data.dataEmprestimo);
+        const prazoDias = 7;
+        const dataDevolucao = new Date(dataEmprestimo.getTime() + prazoDias * 24 * 60 * 60 * 1000);
+        const emprestimo = new EmprestimoEntity_1.EmprestimoEntity(undefined, data.usuarioId, data.exemplarId, data.dataEmprestimo, dataDevolucao, null, 0, null);
         this.emprestimoRepository.insereEmprestimo(emprestimo);
         exemplar.quantidadeEmprestada++;
         exemplar.disponivel = exemplar.quantidade > exemplar.quantidadeEmprestada;
