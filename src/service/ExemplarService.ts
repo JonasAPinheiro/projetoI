@@ -13,7 +13,7 @@ export class ExemplarService {
   }
 
   novoExemplar(data: any): ExemplarEntity {
-    if(!data.quantidade || !data.quantidadeEmprestada || !data.disponivel || !data.livroId) {
+    if(!data.quantidade || !data.quantidadeEmprestada || data.disponivel == undefined || !data.livroId) {
       throw new Error("Preencha todos os campos !!!");
     }
     const exemplar = new ExemplarEntity(undefined, data.quantidade, data.quantidadeEmprestada, data.disponivel, data.livroId);
@@ -24,7 +24,7 @@ export class ExemplarService {
 
   atualizaExemplar(codigo: number, data: any): ExemplarEntity {
     const exemplarAtual = this.exemplarRepository.exibirExemplarPorCodigo(codigo);
-    if(!data.quantidade || !data.quantidadeEmprestada || !data.disponivel || !data.livroId) {
+    if(!data.quantidade || !data.quantidadeEmprestada || data.disponivel == undefined || !data.livroId) {
       throw new Error("Preencha todos os campos !!!");
     }
 

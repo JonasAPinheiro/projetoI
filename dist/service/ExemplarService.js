@@ -12,7 +12,7 @@ class ExemplarService {
         return this.exemplarRepository.exibirExemplarPorCodigo(codigo);
     }
     novoExemplar(data) {
-        if (!data.quantidade || !data.quantidadeEmprestada || !data.disponivel || !data.livroId) {
+        if (!data.quantidade || !data.quantidadeEmprestada || data.disponivel == undefined || !data.livroId) {
             throw new Error("Preencha todos os campos !!!");
         }
         const exemplar = new ExemplarEntity_1.ExemplarEntity(undefined, data.quantidade, data.quantidadeEmprestada, data.disponivel, data.livroId);
@@ -21,7 +21,7 @@ class ExemplarService {
     }
     atualizaExemplar(codigo, data) {
         const exemplarAtual = this.exemplarRepository.exibirExemplarPorCodigo(codigo);
-        if (!data.quantidade || !data.quantidadeEmprestada || !data.disponivel || !data.livroId) {
+        if (!data.quantidade || !data.quantidadeEmprestada || data.disponivel == undefined || !data.livroId) {
             throw new Error("Preencha todos os campos !!!");
         }
         const novoExemplar = new ExemplarEntity_1.ExemplarEntity(exemplarAtual.codigo, data.quantidade, data.quantidadeEmprestada, data.disponivel, data.livroId);
