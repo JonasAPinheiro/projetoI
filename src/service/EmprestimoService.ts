@@ -1,10 +1,12 @@
 import { EmprestimoEntity } from "../model/EmprestimoEntity";
 import { EmprestimoRepository } from "../repository/EmprestimoRepository";
+import { ExemplarRepository } from "../repository/ExemplarRepository";
 import { UsuarioRepository } from "../repository/UsuarioRepository";
 
 export class EmprestimoService {
   private emprestimoRepository = EmprestimoRepository.getInstance();
   private usuarioRepository = UsuarioRepository.getInstance();
+  private exemplarRepository = ExemplarRepository.getInstance();
 
   exibeEmprestimos(): EmprestimoEntity[] {
     return this.emprestimoRepository.exibirEmprestimos();
@@ -31,9 +33,22 @@ export class EmprestimoService {
       throw new Error("Usuário possui empréstimos pendentes, regularize-os antes de novo empréstimo.");
     }
 
+    const exemplar = this.exemplarRepository.exibirExemplarPorCodigo(data.exemplarId);
+    if (!exemplar) {
+      throw new Error("Exemplar não existe!!!");
+    }
+
+    if (exemplar.quantidade <= exemplar.quantidadeEmprestada) {
+      throw new Error("Exemplar não está disponível para empréstimo!!!");
+    }
+
     const emprestimo = new EmprestimoEntity(undefined, data.usuarioId, data.exemplarId, data.dataEmprestimo, data.dataDevolucao, null, 0, null);
 
     this.emprestimoRepository.insereEmprestimo(emprestimo);
+
+    exemplar.quantidadeEmprestada++;
+    exemplar.disponivel = exemplar.quantidade > exemplar.quantidadeEmprestada;
+    this.exemplarRepository.atualizaExemplar(data.exemplarId, exemplar);
     return emprestimo;
   }
 
@@ -50,6 +65,13 @@ export class EmprestimoService {
     this.aplicarSuspensao(emprestimo, diasAtraso);
 
     this.emprestimoRepository.atualizaEmprestimo(emprestimo.id, emprestimo);
+
+    const exemplar = this.exemplarRepository.exibirExemplarPorCodigo(emprestimo.exemplarId);
+    if (exemplar) {
+      exemplar.quantidadeEmprestada--;
+      exemplar.disponivel = exemplar.quantidade > exemplar.quantidadeEmprestada;
+      this.exemplarRepository.atualizaExemplar(emprestimo.exemplarId, exemplar);
+    }
 
     return emprestimo;
   }

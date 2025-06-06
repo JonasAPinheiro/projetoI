@@ -3,10 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmprestimoService = void 0;
 const EmprestimoEntity_1 = require("../model/EmprestimoEntity");
 const EmprestimoRepository_1 = require("../repository/EmprestimoRepository");
+const ExemplarRepository_1 = require("../repository/ExemplarRepository");
 const UsuarioRepository_1 = require("../repository/UsuarioRepository");
 class EmprestimoService {
     emprestimoRepository = EmprestimoRepository_1.EmprestimoRepository.getInstance();
     usuarioRepository = UsuarioRepository_1.UsuarioRepository.getInstance();
+    exemplarRepository = ExemplarRepository_1.ExemplarRepository.getInstance();
     exibeEmprestimos() {
         return this.emprestimoRepository.exibirEmprestimos();
     }
@@ -26,8 +28,18 @@ class EmprestimoService {
         if (emprestimosPendentes.length > 0) {
             throw new Error("Usuário possui empréstimos pendentes, regularize-os antes de novo empréstimo.");
         }
+        const exemplar = this.exemplarRepository.exibirExemplarPorCodigo(data.exemplarId);
+        if (!exemplar) {
+            throw new Error("Exemplar não existe!!!");
+        }
+        if (exemplar.quantidade <= exemplar.quantidadeEmprestada) {
+            throw new Error("Exemplar não está disponível para empréstimo!!!");
+        }
         const emprestimo = new EmprestimoEntity_1.EmprestimoEntity(undefined, data.usuarioId, data.exemplarId, data.dataEmprestimo, data.dataDevolucao, null, 0, null);
         this.emprestimoRepository.insereEmprestimo(emprestimo);
+        exemplar.quantidadeEmprestada++;
+        exemplar.disponivel = exemplar.quantidade > exemplar.quantidadeEmprestada;
+        this.exemplarRepository.atualizaExemplar(data.exemplarId, exemplar);
         return emprestimo;
     }
     registraDevolucao(id, data) {
@@ -39,6 +51,12 @@ class EmprestimoService {
         const diasAtraso = this.calcularAtraso(emprestimo);
         this.aplicarSuspensao(emprestimo, diasAtraso);
         this.emprestimoRepository.atualizaEmprestimo(emprestimo.id, emprestimo);
+        const exemplar = this.exemplarRepository.exibirExemplarPorCodigo(emprestimo.exemplarId);
+        if (exemplar) {
+            exemplar.quantidadeEmprestada--;
+            exemplar.disponivel = exemplar.quantidade > exemplar.quantidadeEmprestada;
+            this.exemplarRepository.atualizaExemplar(emprestimo.exemplarId, exemplar);
+        }
         return emprestimo;
     }
     calcularAtraso(emprestimo) {
