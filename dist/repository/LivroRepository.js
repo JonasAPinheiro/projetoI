@@ -18,6 +18,10 @@ class LivroRepository {
         const index = this.findIndex(isbn);
         return this.livroList[index];
     }
+    exibirLivroPorId(id) {
+        const index = this.findIndex(id);
+        return this.livroList[index];
+    }
     insereLivro(livro) {
         this.livroList.push(livro);
     }
@@ -29,12 +33,21 @@ class LivroRepository {
         const index = this.findIndex(isbn);
         this.livroList.splice(index, 1);
     }
-    findIndex(isbn) {
-        const index = this.livroList.findIndex((l) => l.isbn == isbn);
-        if (index == -1) {
-            throw new Error("O isbn do Livro não foi encontrado !!!");
+    findIndex(busca) {
+        if (typeof busca == "string") {
+            const index = this.livroList.findIndex((l) => l.isbn == busca);
+            if (index == -1) {
+                throw new Error("O isbn do Livro não foi encontrado !!!");
+            }
+            return index;
         }
-        return index;
+        else {
+            const index = this.livroList.findIndex((l) => l.id == busca);
+            if (index == -1) {
+                throw new Error("O id do Livro não foi encontrado !!!");
+            }
+            return index;
+        }
     }
 }
 exports.LivroRepository = LivroRepository;

@@ -46,7 +46,7 @@ export class UsuarioService {
     }
 
     if (data.cpf != usuarioAtual.cpf) {
-      throw new Error("Não é permitido alterar o CPF");
+      throw new Error("Não é permitido alterar o CPF!!!");
     }
 
     this.validarCategoria(data.categoriaId);

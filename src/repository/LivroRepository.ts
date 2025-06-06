@@ -22,6 +22,11 @@ export class LivroRepository {
     return this.livroList[index];
   }
 
+  exibirLivroPorId(id: number): LivroEntity {
+    const index = this.findIndex(id);
+    return this.livroList[index];
+  }
+
   insereLivro(livro: LivroEntity) {
     this.livroList.push(livro);
   }
@@ -36,11 +41,19 @@ export class LivroRepository {
     this.livroList.splice(index, 1);
   }
 
-  private findIndex(isbn: string): number {
-    const index = this.livroList.findIndex((l) => l.isbn == isbn);
-    if (index == -1) {
-      throw new Error("O isbn do Livro não foi encontrado !!!");
+  private findIndex(busca: string | number): number {
+    if(typeof busca == "string"){
+      const index = this.livroList.findIndex((l) => l.isbn == busca);
+      if (index == -1) {
+        throw new Error("O isbn do Livro não foi encontrado !!!");
+      }
+      return index
+    }else{
+      const index = this.livroList.findIndex((l) => l.id == busca);
+      if (index == -1) {
+        throw new Error("O id do Livro não foi encontrado !!!");
+      }
+      return index;
     }
-    return index;
   }
 }

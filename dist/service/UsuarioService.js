@@ -35,7 +35,7 @@ class UsuarioService {
             throw new Error("Preencha todos os campos!!!");
         }
         if (data.cpf != usuarioAtual.cpf) {
-            throw new Error("Não é permitido alterar o CPF");
+            throw new Error("Não é permitido alterar o CPF!!!");
         }
         this.validarCategoria(data.categoriaId);
         this.validarCurso(data.cursoId);
