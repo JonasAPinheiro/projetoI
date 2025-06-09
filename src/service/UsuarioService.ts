@@ -15,7 +15,7 @@ export class UsuarioService {
   }
 
   novoUsuario(data: any): UsuarioEntity {
-    if (!data.nome ||!data.cpf ||!data.categoriaId || !data.cursoId
+    if (!data.nome || !data.email ||!data.cpf || !data.categoriaId || !data.cursoId
     ) {
       throw new Error("Preencha todos os campos!!!");
     }
@@ -31,7 +31,7 @@ export class UsuarioService {
     this.validarCategoria(data.categoriaId);
     this.validarCurso(data.cursoId);
 
-    const usuario = new UsuarioEntity(undefined, data.nome, data.cpf, true, data.categoriaId, data.cursoId
+    const usuario = new UsuarioEntity(undefined, data.nome, data.email, data.cpf, "ativo", data.categoriaId, data.cursoId
     );
     this.usuarioRepository.insereUsuario(usuario);
 
@@ -52,7 +52,7 @@ export class UsuarioService {
     this.validarCategoria(data.categoriaId);
     this.validarCurso(data.cursoId);
 
-    const novoUsuario = new UsuarioEntity(usuarioAtual.id ,data.nome, usuarioAtual.cpf, data.ativo, data.categoriaId, data.cursoId);
+    const novoUsuario = new UsuarioEntity(usuarioAtual.id ,data.nome, data.email, usuarioAtual.cpf, data.ativo, data.categoriaId, data.cursoId);
     this.usuarioRepository.atualizaUsuario(cpf, novoUsuario);
 
     return novoUsuario;

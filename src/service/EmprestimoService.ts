@@ -18,7 +18,7 @@ export class EmprestimoService {
       throw new Error("Usuário não existe!!!");
     }
     
-    if (usuario.ativo != true) {
+    if (usuario.ativo != "ativo") {
       throw new Error("Usuário inativo, não é possível realizar o empréstimo!!!");
     }
     
@@ -108,12 +108,12 @@ export class EmprestimoService {
       const usuario = this.usuarioRepository.buscarUsuarioPorId(emprestimo.usuarioId);
       if (usuario) {
         if (suspensaoDias > 60) {
-          usuario.ativo = false;
+          usuario.ativo = "suspenso";
         } else {
           const emprestimosUsuario = this.emprestimoRepository.exibirEmprestimos().filter((e) => e.usuarioId == usuario.id && e.suspensaoAte && new Date(e.suspensaoAte) > new Date());
 
           if (emprestimosUsuario.length > 2) {
-            usuario.ativo = false;
+            usuario.ativo = "suspenso";
           }
         }
         this.usuarioRepository.atualizaUsuario(usuario.cpf, usuario);
