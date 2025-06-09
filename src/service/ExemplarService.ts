@@ -47,7 +47,13 @@ export class ExemplarService {
       throw new Error("Livro não encontrado!!!");
     }
 
-    const novoExemplar = new ExemplarEntity(exemplarAtual.codigo, data.quantidade, data.quantidadeEmprestada, data.disponivel, data.livroId);
+    if (data.quantidadeEmprestada > data.quantidade) {
+      throw new Error("Quantidade emprestada maior que a quantidade total!!!");
+    }
+
+    const disponivel = data.quantidade > data.quantidadeEmprestada;
+
+    const novoExemplar = new ExemplarEntity(exemplarAtual.codigo, data.quantidade, data.quantidadeEmprestada, disponivel, data.livroId);
 
     this.exemplarRepository.atualizaExemplar(codigo, novoExemplar);
 

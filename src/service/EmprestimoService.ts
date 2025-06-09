@@ -1,50 +1,56 @@
 import { EmprestimoEntity } from "../model/EmprestimoEntity";
+import { categoriasUsuario } from "../repository/CategoriaUsuarioRepository";
 import { EmprestimoRepository } from "../repository/EmprestimoRepository";
 import { ExemplarRepository } from "../repository/ExemplarRepository";
+import { LivroRepository } from "../repository/LivroRepository";
 import { UsuarioRepository } from "../repository/UsuarioRepository";
 
 export class EmprestimoService {
   private emprestimoRepository = EmprestimoRepository.getInstance();
   private usuarioRepository = UsuarioRepository.getInstance();
   private exemplarRepository = ExemplarRepository.getInstance();
+  private livroRepository = LivroRepository.getInstance();
 
   exibeEmprestimos(): EmprestimoEntity[] {
     return this.emprestimoRepository.exibirEmprestimos();
   }
 
   novoEmprestimo(data: any): EmprestimoEntity {
-    const usuario =  this.usuarioRepository.buscarUsuarioPorId(data.usuarioId);
-    if(!usuario){
+    const usuario = this.usuarioRepository.buscarUsuarioPorId(data.usuarioId);
+    if (!usuario){
       throw new Error("Usuário não existe!!!");
     }
-    
-    if (usuario.ativo != "ativo") {
+
+    if (usuario.ativo !== "ativo") {
       throw new Error("Usuário inativo, não é possível realizar o empréstimo!!!");
     }
-    
+
     if (!data.usuarioId || !data.exemplarId || !data.dataEmprestimo) {
       throw new Error("Preencha todos os campos!!!");
     }
 
-    const emprestimosPendentes = this.emprestimoRepository.exibirEmprestimos()
-    .filter(e => e.usuarioId === data.usuarioId && !e.dataEntrega);
-
-    if (emprestimosPendentes.length > 0) {
-      throw new Error("Usuário possui empréstimos pendentes, regularize-os antes de novo empréstimo.");
-    }
-
     const exemplar = this.exemplarRepository.exibirExemplarPorCodigo(data.exemplarId);
-    if (!exemplar) {
+    if (!exemplar){
       throw new Error("Exemplar não existe!!!");
     }
-
+    
     if (exemplar.quantidade <= exemplar.quantidadeEmprestada) {
       throw new Error("Exemplar não está disponível para empréstimo!!!");
     }
 
+    const livro = this.livroRepository.exibirLivroPorId(exemplar.livroId);
+    if (!livro) throw new Error("Livro não encontrado!!!");
+
+    const { limiteLivros, prazoDias } = this.obterLimitesEmprestimo(usuario.categoriaId, usuario.cursoId, livro.categoriaId);
+
+    const emprestimosPendentes = this.emprestimoRepository.exibirEmprestimos().filter(e => e.usuarioId === data.usuarioId && !e.dataEntrega);
+
+    if (emprestimosPendentes.length >= limiteLivros) {
+      throw new Error("Usuário atingiu o limite de empréstimos permitidos!!!");
+    }
+
     const dataEmprestimo = new Date(data.dataEmprestimo);
-    const prazoDias = 7;
-    const dataDevolucao = new Date(dataEmprestimo.getTime() + prazoDias * 24 * 60 * 60 * 1000);
+    const dataDevolucao = new Date(dataEmprestimo.getTime() + prazoDias * 86400000);
 
     const emprestimo = new EmprestimoEntity(undefined, data.usuarioId, data.exemplarId, data.dataEmprestimo, dataDevolucao, null, 0, null);
 
@@ -53,6 +59,7 @@ export class EmprestimoService {
     exemplar.quantidadeEmprestada++;
     exemplar.disponivel = exemplar.quantidade > exemplar.quantidadeEmprestada;
     this.exemplarRepository.atualizaExemplar(data.exemplarId, exemplar);
+
     return emprestimo;
   }
 
@@ -113,11 +120,31 @@ export class EmprestimoService {
           const emprestimosUsuario = this.emprestimoRepository.exibirEmprestimos().filter((e) => e.usuarioId == usuario.id && e.suspensaoAte && new Date(e.suspensaoAte) > new Date());
 
           if (emprestimosUsuario.length > 2) {
-            usuario.ativo = "suspenso";
+            usuario.ativo = "inativo";
           }
         }
         this.usuarioRepository.atualizaUsuario(usuario.cpf, usuario);
       }
+    }
+  }
+
+  private obterLimitesEmprestimo(categoriaId: number, cursoId: number, livroCategoriaId: number): { limiteLivros: number, prazoDias: number } {
+    const categoria = categoriasUsuario.find(c => c.id === categoriaId);
+    if (!categoria) {
+      throw new Error("Categoria de usuário não permite empréstimos!!!");
+    }
+
+    switch (categoria.nome) {
+      case "Professor":
+        return { limiteLivros: 5, prazoDias: 40 };
+      case "Aluno":
+        const livroArea = cursoId == livroCategoriaId;
+        return {
+          limiteLivros: 3,
+          prazoDias: livroArea ? 30 : 15
+        };
+      default:
+        throw new Error("Nao foi possivel emprestar!!!");
     }
   }
 }
