@@ -22,17 +22,13 @@ export class UsuarioEntity {
       throw new Error("Cpf inválido!!!");
     }
 
-    this.id = id ?? this.gerarId();
+    this.id = id ?? 0;
     this.nome = nome;
     this.email = email;
     this.cpf = cpf;
     this.ativo = ativo;
     this.categoriaId = categoriaId;
     this.cursoId = cursoId;
-  }
-
-  private gerarId(): number {
-    return parseInt((Date.now() / 100).toString(), 10);
   }
 
   private calcularDigitoVerificador(cpf: string, pesoInicial: number): number {
