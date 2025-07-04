@@ -20,17 +20,12 @@ export class ExemplarService {
     }
 
     const livro = this.livroRepository.exibirLivroPorId(data.livroId);
+    
     if (!livro) {
       throw new Error("Livro não encontrado!!!");
     }
 
-    if (data.quantidadeEmprestada > data.quantidade) {
-      throw new Error("Quantidade emprestada maior que quantidade no estoque!!!");
-    }
-
-    const disponivel = data.quantidade > data.quantidadeEmprestada;
-
-    const exemplar = new ExemplarEntity(undefined, data.quantidade, data.quantidadeEmprestada, disponivel, data.livroId);
+    const exemplar = new ExemplarEntity(undefined, data.quantidade, data.quantidadeEmprestada, data.livroId);
 
     this.exemplarRepository.insereExemplar(exemplar);
     return exemplar;
@@ -38,22 +33,17 @@ export class ExemplarService {
 
   atualizaExemplar(codigo: number, data: any): ExemplarEntity {
     const exemplarAtual = this.exemplarRepository.exibirExemplarPorCodigo(codigo);
+
     if (data.quantidade == undefined || data.quantidadeEmprestada == undefined || !data.livroId) {
-    throw new Error("Preencha todos os campos !!!");
-  }
+      throw new Error("Preencha todos os campos !!!");
+    }
 
     const livro = this.livroRepository.exibirLivroPorId(data.livroId);
     if (!livro) {
       throw new Error("Livro não encontrado!!!");
     }
 
-    if (data.quantidadeEmprestada > data.quantidade) {
-      throw new Error("Quantidade emprestada maior que a quantidade total!!!");
-    }
-
-    const disponivel = data.quantidade > data.quantidadeEmprestada;
-
-    const novoExemplar = new ExemplarEntity(exemplarAtual.codigo, data.quantidade, data.quantidadeEmprestada, disponivel, data.livroId);
+    const novoExemplar = new ExemplarEntity(exemplarAtual.codigo, data.quantidade, data.quantidadeEmprestada, data.livroId);
 
     this.exemplarRepository.atualizaExemplar(codigo, novoExemplar);
 

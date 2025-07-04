@@ -90,9 +90,9 @@ export class EmprestimoService {
   private calcularAtraso(emprestimo: EmprestimoEntity): number {
     const devolucao = new Date(emprestimo.dataDevolucao);
     const entrega = emprestimo.dataEntrega;
-     if (!entrega) {
-        throw new Error("Data de entrega inválida!!!");
-      }
+    if (!entrega) {
+      throw new Error("Data de entrega inválida!!!");
+    }
 
     const atrasoMs = entrega.getTime() - devolucao.getTime();
     const diasAtraso = Math.max(Math.ceil(atrasoMs / (1000 * 60 * 60 * 24)), 0);

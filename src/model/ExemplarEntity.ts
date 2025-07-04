@@ -9,13 +9,16 @@ export class ExemplarEntity {
     codigo: number | undefined,
     quantidade: number,
     quantidadeEmprestada: number,
-    disponivel: boolean,
     livroId: number
   ) {
+     if (quantidadeEmprestada > quantidade) {
+      throw new Error("Quantidade emprestada maior que quantidade no estoque!!!");
+    }
+
     this.codigo = codigo ?? this.gerarCodigo();
     this.quantidade = quantidade;
     this.quantidadeEmprestada = quantidadeEmprestada;
-    this.disponivel = disponivel;
+    this.disponivel = quantidade > quantidadeEmprestada;
     this.livroId = livroId;
   }
 
