@@ -4,13 +4,12 @@ import { Request, Response } from "express";
 export class CatalogoController {
   private catalogoService = new CatalogoService();
 
-  listarCategoriasUsuario(req: Request, res: Response): void {
+  async listarCategoriasUsuario(req: Request, res: Response) {
     try {
-      const categorias = this.catalogoService.listarCategoriasUsuarios();
+      const categorias = await this.catalogoService.listarCategoriasUsuarios();
       res.status(200).json(categorias);
     } catch (error: unknown) {
-      let message: string =
-        "Não foi possivel listar as categorias de usuários!!!";
+      let message: string = "Não foi possivel listar as categorias de usuários!!!";
       if (error instanceof Error) {
         message = error.message;
       }
@@ -20,13 +19,12 @@ export class CatalogoController {
     }
   }
 
-  listarCategoriasLivro(req: Request, res: Response): void {
+  async listarCategoriasLivro(req: Request, res: Response) {
     try {
-      const categorias = this.catalogoService.listarCategoriasLivros();
+      const categorias = await this.catalogoService.listarCategoriasLivros();
       res.status(200).json(categorias);
     } catch (error: unknown) {
-      let message: string =
-        "Não foi possível listar as categorias de livros!!!";
+      let message: string = "Não foi possível listar as categorias de livros!!!";
       if (error instanceof Error) {
         message = error.message;
       }
@@ -36,9 +34,9 @@ export class CatalogoController {
     }
   }
 
-  listarCursos(req: Request, res: Response): void {
+  async listarCursos(req: Request, res: Response) {
     try {
-      const cursos = this.catalogoService.listarCursos();
+      const cursos = await this.catalogoService.listarCursos();
       res.status(200).json(cursos);
     } catch (error: unknown) {
       let message: string = "Não foi possível listar os cursos!!!";
