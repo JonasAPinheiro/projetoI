@@ -4,9 +4,9 @@ import { UsuarioService } from "../service/UsuarioService";
 export class UsuarioController {
   private usuarioService = new UsuarioService();
 
-  listarUsuarios(req: Request, res: Response): void {
+  async listarUsuarios(req: Request, res: Response) {
     try {
-      const usuarios = this.usuarioService.exibeUsuarios();
+      const usuarios = await this.usuarioService.exibeUsuarios();
       res.status(200).json(usuarios);
     } catch (error: unknown) {
       let message: string = "Não foi possível listar os usuários!!!";
@@ -19,15 +19,15 @@ export class UsuarioController {
     }
   }
 
-  listarUsuarioPorCpf(req: Request, res: Response): void {
+  async listarUsuarioPorCpf(req: Request, res: Response) {
     try {
       const { cpf } = req.params;
-      const usuario = this.usuarioService.exibeUsuarioPorCpf(cpf);
+      const usuario = await this.usuarioService.exibeUsuarioPorCpf(cpf);
       res.status(200).json(usuario);
-    } catch (error: unknown) {
+    } catch (err: unknown) {
       let message = "Não foi possível encontrar usuário com esse CPF!!!";
-      if (error instanceof Error) {
-        message = error.message;
+      if (err instanceof Error) {
+        message = err.message;
       }
       res.status(400).json({
         message: message,
@@ -35,17 +35,17 @@ export class UsuarioController {
     }
   }
 
-  cadastrarUsuario(req: Request, res: Response): void {
+  async cadastrarUsuario(req: Request, res: Response) {
     try {
-      const usuario = this.usuarioService.novoUsuario(req.body);
+      const usuario = await this.usuarioService.novoUsuario(req.body);
       res.status(201).json({
         message: "Usuário cadastrado com sucesso!!!",
         usuario: usuario,
       });
-    } catch (error: unknown) {
+    } catch (err: unknown) {
       let message = "Não foi possível cadastrar usuário!!!";
-      if (error instanceof Error) {
-        message = error.message;
+      if (err instanceof Error) {
+        message = err.message;
       }
       res.status(400).json({
         message: message,
@@ -53,38 +53,38 @@ export class UsuarioController {
     }
   }
 
-  atualizarUsuario(req: Request, res: Response): void {
+  async atualizarUsuario(req: Request, res: Response) {
     try {
       const { cpf } = req.params;
-      const usuario = this.usuarioService.atualizaUsuario(cpf, req.body);
+      const usuario = await this.usuarioService.atualizaUsuario(cpf, req.body);
       res.status(200).json({
         message: "Usuário atualizado com sucesso!!!",
-        usuario: usuario
-      })
-    }catch(error: unknown){
-      let message = "Não foi possível atualizar usuário!!!"
-      if(error instanceof Error){
-        message = error.message;
+        usuario: usuario,
+      });
+    } catch (err: unknown) {
+      let message = "Não foi possível atualizar usuário!!!";
+      if (err instanceof Error) {
+        message = err.message;
       }
       res.status(400).json({
-        message: message
-      })
+        message: message,
+      });
     }
   }
 
-  removerUsuario(req: Request, res: Response): void {
+  async removerUsuario(req: Request, res: Response) {
     try {
       const { cpf } = req.params;
-      const usuario = this.usuarioService.exibeUsuarioPorCpf(cpf);
-      this.usuarioService.removeUsuario(cpf);
+      const usuario = await this.usuarioService.exibeUsuarioPorCpf(cpf);
+      await this.usuarioService.removeUsuario(cpf);
       res.status(200).json({
         message: "Usuário removido com sucesso!!!",
         usuario: usuario,
       });
-    } catch (error: unknown) {
+    } catch (err: unknown) {
       let message = "Não foi possível excluir usuário!!!";
-      if (error instanceof Error) {
-        message = error.message;
+      if (err instanceof Error) {
+        message = err.message;
       }
       res.status(400).json({
         message: message,
