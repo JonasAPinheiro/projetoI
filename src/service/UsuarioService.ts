@@ -24,10 +24,6 @@ export class UsuarioService {
       throw new Error("Cpf já cadastrado em outro usuário!!!");
     }
 
-    if (!this.validarCpf(data.cpf)) {
-      throw new Error("Cpf inválido!!!");
-    }
-
     this.validarCategoria(data.categoriaId);
     this.validarCurso(data.cursoId);
 
@@ -60,42 +56,7 @@ export class UsuarioService {
 
   removeUsuario(cpf: string){
     this.usuarioRepository.removeUsuario(cpf);
-  }
-
-  private calcularDigitoVerificador(cpf: string, pesoInicial: number): number {
-    let soma = 0;
-    for (let i = 0; i < pesoInicial - 1; i++) {
-      soma += Number(cpf[i]) * (pesoInicial - i);
-    }
-    const resto = soma % 11;
-    return resto < 2 ? 0 : 11 - resto;
-  }
-  
-  private sequenciaRepetidaCpf(cpf: string): boolean {
-    const primeiroDigito = cpf[0];
-    for(let i = 1; i < cpf.length; i++){
-      if(cpf[i] != primeiroDigito){
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private validarCpf(cpf: string): boolean{
-    cpf = cpf.replace(/[^\d]/g, "");
-
-    if(cpf.length != 11){
-      return false;
-    }
-
-    if(this.sequenciaRepetidaCpf(cpf)){
-      return false;
-    }
-    const digito1 = this.calcularDigitoVerificador(cpf, 10);
-    const digito2 = this.calcularDigitoVerificador(cpf, 11);
-
-    return digito1 === Number(cpf[9]) && digito2 === Number(cpf[10]);
-  }
+  }  
 
   private validarCategoria(id: any): void {
     if (!categoriasUsuario.find(categoria => categoria.id === id)) 
