@@ -6,68 +6,72 @@ import { UsuarioRepository } from "../repository/UsuarioRepository";
 export class UsuarioService {
   private usuarioRepository = UsuarioRepository.getInstance();
 
-  exibeUsuarios(): UsuarioEntity[]{
-    return this.usuarioRepository.exibirUsuarios();
+  async exibeUsuarios(): Promise<UsuarioEntity[]> {
+    return await this.usuarioRepository.exibirUsuarios();
   }
 
-  exibeUsuarioPorCpf(cpf: string): UsuarioEntity{
-    return this.usuarioRepository.exibirUsuarioPorCpf(cpf);
+  async exibeUsuarioPorCpf(cpf: string): Promise<UsuarioEntity> {
+    return await this.usuarioRepository.exibirUsuarioPorCpf(cpf);
   }
 
-  novoUsuario(data: any): UsuarioEntity {
-    if (!data.nome || !data.email ||!data.cpf || !data.categoriaId || !data.cursoId
-    ) {
+  async novoUsuario(data: any): Promise<UsuarioEntity> {
+    if (!data.nome || !data.email || !data.cpf || !data.categoriaId || !data.cursoId) {
       throw new Error("Preencha todos os campos!!!");
-    }
-
-    if (this.usuarioRepository.buscarUsuarioPorCpf(data.cpf)) {
-      throw new Error("Cpf já cadastrado em outro usuário!!!");
     }
 
     this.validarCategoria(data.categoriaId);
     this.validarCurso(data.cursoId);
 
-    const usuario = new UsuarioEntity(undefined, data.nome, data.email, data.cpf, "ativo", data.categoriaId, data.cursoId
+    const usuario = new UsuarioEntity(
+      undefined,
+      data.nome,
+      data.email,
+      data.cpf,
+      "ativo",
+      data.categoriaId,
+      data.cursoId
     );
-    this.usuarioRepository.insereUsuario(usuario);
 
-    return usuario;
+    return await this.usuarioRepository.insereUsuario(usuario);
   }
 
-  atualizaUsuario(cpf:string, data: any): UsuarioEntity{
-    const usuarioAtual = this.usuarioRepository.exibirUsuarioPorCpf(cpf);
-    if (!data.nome || data.ativo == undefined || !data.categoriaId || !data.cursoId) 
-    {
+  async atualizaUsuario(cpf: string, data: any): Promise<UsuarioEntity> {
+    const usuarioAtual = await this.usuarioRepository.exibirUsuarioPorCpf(cpf);
+    if (!data.nome || data.ativo == undefined || !data.categoriaId || !data.cursoId) {
       throw new Error("Preencha todos os campos!!!");
     }
 
-    if (data.cpf != usuarioAtual.cpf) {
+    if (data.cpf && data.cpf != usuarioAtual.cpf) {
       throw new Error("Não é permitido alterar o CPF!!!");
     }
 
     this.validarCategoria(data.categoriaId);
     this.validarCurso(data.cursoId);
 
-    const novoUsuario = new UsuarioEntity(usuarioAtual.id ,data.nome, data.email, usuarioAtual.cpf, data.ativo, data.categoriaId, data.cursoId);
-    this.usuarioRepository.atualizaUsuario(cpf, novoUsuario);
-
-    return novoUsuario;
+    const novoUsuario = new UsuarioEntity(
+      usuarioAtual.id,
+      data.nome,
+      data.email,
+      usuarioAtual.cpf,
+      data.ativo,
+      data.categoriaId,
+      data.cursoId
+    );
+    return await this.usuarioRepository.atualizaUsuario(cpf, novoUsuario);
   }
 
-  removeUsuario(cpf: string){
-    this.usuarioRepository.removeUsuario(cpf);
-  }  
+  async removeUsuario(cpf: string): Promise<UsuarioEntity> {
+    return await this.usuarioRepository.removeUsuario(cpf);
+  }
 
   private validarCategoria(id: any): void {
-    if (!categoriasUsuario.find(categoria => categoria.id === id)) 
-    {
+    if (!categoriasUsuario.find((categoria) => categoria.id === id)) {
       throw new Error("Categoria não existe!!!");
     }
   }
 
   private validarCurso(id: any): void {
-    if (!cursos.find(curso => curso.id === id)) 
-    {
+    if (!cursos.find((curso) => curso.id === id)) {
       throw new Error("Curso não existe!!!");
     }
   }
