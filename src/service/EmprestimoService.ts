@@ -1,22 +1,23 @@
 import { EmprestimoEntity } from "../model/EmprestimoEntity";
-import { categoriasUsuario } from "../repository/CategoriaUsuarioRepository";
 import { EmprestimoRepository } from "../repository/EmprestimoRepository";
 import { ExemplarRepository } from "../repository/ExemplarRepository";
 import { LivroRepository } from "../repository/LivroRepository";
 import { UsuarioRepository } from "../repository/UsuarioRepository";
+import { CatalogoService } from "./CatalogoService";
 
 export class EmprestimoService {
   private emprestimoRepository = EmprestimoRepository.getInstance();
   private usuarioRepository = UsuarioRepository.getInstance();
   private exemplarRepository = ExemplarRepository.getInstance();
   private livroRepository = LivroRepository.getInstance();
+  private catalogoService = new CatalogoService();
 
   exibeEmprestimos(): EmprestimoEntity[] {
     return this.emprestimoRepository.exibirEmprestimos();
   }
 
-  novoEmprestimo(data: any): EmprestimoEntity {
-    const usuario = this.usuarioRepository.buscarUsuarioPorId(data.usuarioId);
+  async novoEmprestimo(data: any): Promise<EmprestimoEntity> {
+    const usuario =  await this.usuarioRepository.exibirUsuarioPorId(data.usuarioId);
     if (!usuario){
       throw new Error("Usuário não existe!!!");
     }
@@ -41,7 +42,7 @@ export class EmprestimoService {
     const livro = this.livroRepository.exibirLivroPorId(exemplar.livroId);
     if (!livro) throw new Error("Livro não encontrado!!!");
 
-    const { limiteLivros, prazoDias } = this.obterLimitesEmprestimo(usuario.categoriaId, usuario.cursoId, livro.categoriaId);
+    const { limiteLivros, prazoDias } = await this.obterLimitesEmprestimo(usuario.categoriaId, usuario.cursoId, livro.categoriaId);
 
     const emprestimosPendentes = this.emprestimoRepository.exibirEmprestimos().filter(e => e.usuarioId === data.usuarioId && !e.dataEntrega);
 
@@ -100,7 +101,7 @@ export class EmprestimoService {
     return diasAtraso;
   }
 
-  private aplicarSuspensao(emprestimo: EmprestimoEntity, diasAtraso: number): void {
+  private async aplicarSuspensao(emprestimo: EmprestimoEntity, diasAtraso: number) {
     if (diasAtraso > 0) {
       const entrega = emprestimo.dataEntrega;
       if (!entrega) {
@@ -112,7 +113,7 @@ export class EmprestimoService {
 
       emprestimo.suspensaoAte = suspensao;
 
-      const usuario = this.usuarioRepository.buscarUsuarioPorId(emprestimo.usuarioId);
+      const usuario = await this.usuarioRepository.exibirUsuarioPorId(emprestimo.usuarioId);
       if (usuario) {
         if (suspensaoDias > 60) {
           usuario.ativo = "suspenso";
@@ -128,8 +129,9 @@ export class EmprestimoService {
     }
   }
 
-  private obterLimitesEmprestimo(categoriaId: number, cursoId: number, livroCategoriaId: number): { limiteLivros: number, prazoDias: number } {
-    const categoria = categoriasUsuario.find(c => c.id === categoriaId);
+  private async obterLimitesEmprestimo(categoriaId: number, cursoId: number, livroCategoriaId: number): Promise<{ limiteLivros: number, prazoDias: number }> {
+    const categorias = await this.catalogoService.listarCategoriasUsuarios()
+    const categoria = categorias.find(c => c.id === categoriaId);
     if (!categoria) {
       throw new Error("Categoria de usuário não permite empréstimos!!!");
     }

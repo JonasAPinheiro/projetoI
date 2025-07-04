@@ -1,9 +1,10 @@
 import { LivroEntity } from "../model/LivroEntity";
-import { categoriasLivro } from "../repository/CategoriaLivroRepository";
+import { CategoriaLivroRepository } from "../repository/CategoriaLivroRepository";
 import { LivroRepository } from "../repository/LivroRepository";
 
 export class LivroService {
   private livroRepository = LivroRepository.getInstance();
+  private categoriaLivroRepository = CategoriaLivroRepository.getInstance();
 
   exibeLivros(): LivroEntity[]{
     return this.livroRepository.exibirLivros();
@@ -46,9 +47,10 @@ export class LivroService {
     this.livroRepository.removeLivro(isbn);
   }
 
-  private validarCategoria(id: any): void {
-    if (!categoriasLivro.find(categoria => categoria.id === id)) 
-    {
+  private async validarCategoria(id: number): Promise<void> {
+    const categorias = await this.categoriaLivroRepository.exibirCategoriasLivros();
+    const existe = categorias.some((categoria) => categoria.id === id);
+    if (!existe) {
       throw new Error("Categoria não existe!!!");
     }
   }

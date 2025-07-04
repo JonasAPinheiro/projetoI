@@ -1,10 +1,12 @@
 import { UsuarioEntity } from "../model/UsuarioEntity";
-import { categoriasUsuario } from "../repository/CategoriaUsuarioRepository";
-import { cursos } from "../repository/CursoRepository";
+import { CategoriaUsuarioRepository } from "../repository/CategoriaUsuarioRepository";
+import { CursoRepository } from "../repository/CursoRepository";
 import { UsuarioRepository } from "../repository/UsuarioRepository";
 
 export class UsuarioService {
   private usuarioRepository = UsuarioRepository.getInstance();
+  private categoriaUsuarioRepository = CategoriaUsuarioRepository.getInstance()
+  private cursoRepository = CursoRepository.getInstance();
 
   async exibeUsuarios(): Promise<UsuarioEntity[]> {
     return await this.usuarioRepository.exibirUsuarios();
@@ -64,14 +66,18 @@ export class UsuarioService {
     return await this.usuarioRepository.removeUsuario(cpf);
   }
 
-  private validarCategoria(id: any): void {
-    if (!categoriasUsuario.find((categoria) => categoria.id === id)) {
+  private async validarCategoria(id: number): Promise<void> {
+    const categorias = await this.categoriaUsuarioRepository.exibirCategoriasUsuarios();
+    const existe = categorias.some((categoria) => categoria.id === id);
+    if (!existe) {
       throw new Error("Categoria não existe!!!");
     }
   }
 
-  private validarCurso(id: any): void {
-    if (!cursos.find((curso) => curso.id === id)) {
+  private async validarCurso(id: number): Promise<void> {
+    const cursos = await this.cursoRepository.exibirCursos();
+    const existe = cursos.some((curso) => curso.id === id);
+    if (!existe) {
       throw new Error("Curso não existe!!!");
     }
   }
