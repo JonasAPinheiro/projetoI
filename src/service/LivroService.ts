@@ -6,12 +6,12 @@ export class LivroService {
   private livroRepository = LivroRepository.getInstance();
   private categoriaLivroRepository = CategoriaLivroRepository.getInstance();
 
-  exibeLivros(): LivroEntity[]{
-    return this.livroRepository.exibirLivros();
+  async exibeLivros(): Promise<LivroEntity[]> {
+    return await this.livroRepository.exibirLivros();
   }
 
-  exibeLivroPorIsbn(isbn: string): LivroEntity{
-    return this.livroRepository.exibirLivroPorIsbn(isbn);
+  async exibeLivroPorIsbn(isbn: string): Promise<LivroEntity> {
+    return await this.livroRepository.exibirLivroPorIsbn(isbn);
   }
 
   async novoLivro(data: any): Promise<LivroEntity> {
@@ -22,29 +22,42 @@ export class LivroService {
     await this.validarCategoria(data.categoriaId);
     await this.validarCombinacao(data.autor, data.editora, data.edicao);
 
-    const livro = new LivroEntity(undefined, data.titulo, data.autor, data.editora, data.edicao, data.isbn, data.categoriaId);
+    const livro = new LivroEntity(
+      undefined,
+      data.titulo,
+      data.autor,
+      data.editora,
+      data.edicao,
+      data.isbn,
+      data.categoriaId
+    );
 
-    this.livroRepository.insereLivro(livro);
-    return livro;
+    return await this.livroRepository.insereLivro(livro);
   }
 
   async atualizaLivro(isbn: string, data: any): Promise<LivroEntity> {
-    const livroAtual = this.livroRepository.exibirLivroPorIsbn(isbn);
-    if (!data.titulo || !data.autor || !data.editora || !data.edicao || !data.isbn || !data.categoriaId) {
+    const livroAtual = await this.livroRepository.exibirLivroPorIsbn(isbn);
+    if (!data.titulo || !data.autor || !data.editora || !data.edicao || !data.categoriaId) {
       throw new Error("Preencha todos os campos!!!");
     }
 
     await this.validarCategoria(data.categoriaId);
 
-    const novoLivro = new LivroEntity(livroAtual.id, data.titulo, data.autor, data.editora, data.edicao, data.isbn, data.categoriaId);
+    const novoLivro = new LivroEntity(
+      livroAtual.id,
+      data.titulo,
+      data.autor,
+      data.editora,
+      data.edicao,
+      livroAtual.isbn,
+      data.categoriaId
+    );
 
-    this.livroRepository.atualizaLivro(isbn, novoLivro);
-
-    return novoLivro;
+    return await this.livroRepository.atualizaLivro(isbn, novoLivro);
   }
 
-  removeLivro(isbn: string) {
-    this.livroRepository.removeLivro(isbn);
+  async removeLivro(isbn: string): Promise<LivroEntity> {
+    return await this.livroRepository.removeLivro(isbn);
   }
 
   private async validarCategoria(id: number): Promise<void> {
@@ -56,9 +69,11 @@ export class LivroService {
   }
 
   private async validarCombinacao(autor: string, editora: string, edicao: string): Promise<void> {
-    const livros = this.livroRepository.exibirLivros(); 
+    const livros = await this.livroRepository.exibirLivros();
 
-    const combinação = livros.find(livro => livro.autor == autor && livro.editora === editora &&livro.edicao == edicao);
+    const combinação = livros.find(
+      (livro) => livro.autor == autor && livro.editora === editora && livro.edicao == edicao
+    );
 
     if (combinação) {
       throw new Error("Já existe um livro com essa combinação de autor, editora e edição!!!");
