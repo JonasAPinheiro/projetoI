@@ -16,16 +16,12 @@ export class LivroEntity {
     isbn: string,
     categoriaId: number
   ) {
-    this.id = id ?? this.gerarId();
+    this.id = id ?? 0;
     this.titulo = titulo;
     this.autor = autor;
     this.editora = editora;
     this.edicao = edicao;
     this.isbn = isbn;
     this.categoriaId = categoriaId;
-  }
-
-  private gerarId(): number {
-    return parseInt((Date.now() / 100).toString(), 10);
   }
 }
