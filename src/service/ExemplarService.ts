@@ -6,51 +6,61 @@ export class ExemplarService {
   private exemplarRepository = ExemplarRepository.getInstance();
   private livroRepository = LivroRepository.getInstance();
 
-  exibeExemplares(): ExemplarEntity[] {
-    return this.exemplarRepository.exibirExemplares();
+  async exibeExemplares(): Promise<ExemplarEntity[]> {
+    return await this.exemplarRepository.exibirExemplares();
   }
 
-  exibeExemplarPorCodigo(codigo: number): ExemplarEntity{
+  async exibeExemplarPorCodigo(codigo: number): Promise<ExemplarEntity> {
     return this.exemplarRepository.exibirExemplarPorCodigo(codigo);
   }
 
-  novoExemplar(data: any): ExemplarEntity {
-    if(data.quantidade == undefined || data.quantidadeEmprestada == undefined || !data.livroId) {
+  async novoExemplar(data: any): Promise<ExemplarEntity> {
+    if (data.quantidade == undefined || data.quantidadeEmprestada == undefined || !data.livroId) {
       throw new Error("Preencha todos os campos !!!");
     }
 
-    const livro = this.livroRepository.exibirLivroPorId(data.livroId);
-    
+    const livro = await this.livroRepository.exibirLivroPorId(data.livroId);
+
     if (!livro) {
       throw new Error("Livro não encontrado!!!");
     }
 
-    const exemplar = new ExemplarEntity(undefined, data.quantidade, data.quantidadeEmprestada, data.livroId);
+    const exemplar = new ExemplarEntity(
+      undefined, 
+      undefined, 
+      data.quantidade, 
+      data.quantidadeEmprestada, 
+      data.livroId
+    );
 
-    this.exemplarRepository.insereExemplar(exemplar);
-    return exemplar;
+    return await this.exemplarRepository.insereExemplar(exemplar);
   }
 
-  atualizaExemplar(codigo: number, data: any): ExemplarEntity {
-    const exemplarAtual = this.exemplarRepository.exibirExemplarPorCodigo(codigo);
+  async atualizaExemplar(codigo: number, data: any): Promise<ExemplarEntity> {
+    const exemplarAtual = await this.exemplarRepository.exibirExemplarPorCodigo(codigo);
 
     if (data.quantidade == undefined || data.quantidadeEmprestada == undefined || !data.livroId) {
       throw new Error("Preencha todos os campos !!!");
     }
 
-    const livro = this.livroRepository.exibirLivroPorId(data.livroId);
+    const livro = await this.livroRepository.exibirLivroPorId(data.livroId);
+
     if (!livro) {
       throw new Error("Livro não encontrado!!!");
     }
 
-    const novoExemplar = new ExemplarEntity(exemplarAtual.codigo, data.quantidade, data.quantidadeEmprestada, data.livroId);
+    const novoExemplar = new ExemplarEntity(
+      exemplarAtual.id,
+      exemplarAtual.codigo,
+      data.quantidade,
+      data.quantidadeEmprestada,
+      data.livroId
+    );
 
-    this.exemplarRepository.atualizaExemplar(codigo, novoExemplar);
-
-    return novoExemplar
+    return await this.exemplarRepository.atualizaExemplar(codigo, novoExemplar);
   }
 
-  removeExemplar(codigo: number) {
-    this.exemplarRepository.removeExemplar(codigo);
+  async removeExemplar(codigo: number): Promise<ExemplarEntity> {
+    return await this.exemplarRepository.removeExemplar(codigo);
   }
 }
