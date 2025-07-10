@@ -1,94 +1,83 @@
-import { Request, Response } from "express";
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Res, Route, Tags, TsoaResponse } from "tsoa";
 import { UsuarioService } from "../service/UsuarioService";
+import { BasicResponseDto } from "../model/dto/BasicResponseDto";
+import { UsuarioEntity } from "../model/entity/UsuarioEntity";
+import { UsuarioRequestDto } from "../model/dto/usuario/UsuarioRequestDto";
+import { UsuarioUpdateDto } from "../model/dto/usuario/UsuarioUpdateDto";
 
-export class UsuarioController {
+@Route("usuarios")
+@Tags("usuarios")
+export class UsuarioController extends Controller {
   private usuarioService = new UsuarioService();
 
-  async listarUsuarios(req: Request, res: Response) {
+  @Get()
+  async listarUsuarios(
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ): Promise<void> {
     try {
-      const usuarios = await this.usuarioService.exibeUsuarios();
-      res.status(200).json(usuarios);
-    } catch (error: unknown) {
-      let message: string = "Não foi possível listar os usuários!!!";
-      if (error instanceof Error) {
-        message = error.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const usuarios: UsuarioEntity[] = await this.usuarioService.exibeUsuarios();
+      return sucess(200, new BasicResponseDto("Usuários listados com sucesso!", usuarios));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 
-  async listarUsuarioPorCpf(req: Request, res: Response) {
+  @Get("{cpf}")
+  async listarUsuarioPorCpf(
+    @Path() cpf: string,
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ): Promise<void> {
     try {
-      const { cpf } = req.params;
-      const usuario = await this.usuarioService.exibeUsuarioPorCpf(cpf);
-      res.status(200).json(usuario);
-    } catch (err: unknown) {
-      let message = "Não foi possível encontrar usuário com esse CPF!!!";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const usuario: UsuarioEntity = await this.usuarioService.exibeUsuarioPorCpf(cpf);
+      return sucess(200, new BasicResponseDto("Usuário encontrado!", usuario));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 
-  async cadastrarUsuario(req: Request, res: Response) {
+  @Post()
+  async cadastrarUsuario(
+    @Body() dto: UsuarioRequestDto,
+    @Res() sucess: TsoaResponse<201, BasicResponseDto>,
+    @Res() fail: TsoaResponse<400, BasicResponseDto>
+  ): Promise<void> {
     try {
-      const usuario = await this.usuarioService.novoUsuario(req.body);
-      res.status(201).json({
-        message: "Usuário cadastrado com sucesso!!!",
-        usuario: usuario,
-      });
-    } catch (err: unknown) {
-      let message = "Não foi possível cadastrar usuário!!!";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const usuario = await this.usuarioService.novoUsuario(dto);
+      return sucess(201, new BasicResponseDto("Usuário criado com sucesso!", usuario));
+    } catch (error: any) {
+      return fail(400, new BasicResponseDto(error.message, undefined));
     }
   }
 
-  async atualizarUsuario(req: Request, res: Response) {
+  @Put("{cpf}")
+  async atualizarUsuario(
+    @Path() cpf: string,
+    @Body() dto: UsuarioUpdateDto,
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ) {
     try {
-      const { cpf } = req.params;
-      const usuario = await this.usuarioService.atualizaUsuario(cpf, req.body);
-      res.status(200).json({
-        message: "Usuário atualizado com sucesso!!!",
-        usuario: usuario,
-      });
-    } catch (err: unknown) {
-      let message = "Não foi possível atualizar usuário!!!";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const usuario = await this.usuarioService.atualizaUsuario(cpf, dto);
+      return sucess(200, new BasicResponseDto("Usuário atualizado com sucesso!", usuario));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 
-  async removerUsuario(req: Request, res: Response) {
+  @Delete("{cpf}")
+  async removerUsuario(
+    @Path() cpf: string,
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ) {
     try {
-      const { cpf } = req.params;
       const usuario = await this.usuarioService.exibeUsuarioPorCpf(cpf);
       await this.usuarioService.removeUsuario(cpf);
-      res.status(200).json({
-        message: "Usuário removido com sucesso!!!",
-        usuario: usuario,
-      });
-    } catch (err: unknown) {
-      let message = "Não foi possível excluir usuário!!!";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      return sucess(200, new BasicResponseDto("Usuário removido com sucesso!", usuario));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 }
