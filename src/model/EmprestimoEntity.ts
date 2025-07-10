@@ -18,7 +18,7 @@ export class EmprestimoEntity {
     diasAtraso: number,
     suspensaoAte: Date | null
   ) {
-    this.id = id ?? this.gerarId();
+    this.id = id ?? 0;
     this.usuarioId = usuarioId;
     this.exemplarId = exemplarId;
     this.dataEmprestimo = dataEmprestimo;
@@ -26,9 +26,5 @@ export class EmprestimoEntity {
     this.dataEntrega = dataEntrega;
     this.diasAtraso = diasAtraso;
     this.suspensaoAte = suspensaoAte;
-  }
-
-  private gerarId(): number {
-    return parseInt((Date.now() / 100).toString(), 10);
   }
 }
