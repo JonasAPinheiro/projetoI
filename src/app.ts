@@ -37,12 +37,6 @@ setInterval(async () => {
   }
 }, 1000 * 60 * 60 * 24);
 
-//Estoque
-app.get("/library/estoque", exemplarController.listarExemplares.bind(exemplarController));
-app.get("/library/estoque/:codigo", exemplarController.listarExemplarPorCodigo.bind(exemplarController));
-app.post("/library/estoque", exemplarController.cadastrarExemplar.bind(exemplarController));
-app.put("/library/estoque/:codigo", exemplarController.atualizarExemplar.bind(exemplarController));
-app.delete("/library/estoque/:codigo", exemplarController.removerExemplar.bind(exemplarController));
 
 //Empréstimos
 app.get("/library/emprestimos", emprestimosController.listarEmprestimos.bind(emprestimosController));
