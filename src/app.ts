@@ -1,12 +1,12 @@
 import express from "express";
 import { CatalogoController } from "./controller/CatalogoController";
-import { UsuarioController } from "./controller/UsuarioController";
 import { LivroController } from "./controller/LivroController";
 import { ExemplarController } from "./controller/ExemplarController";
 import { EmprestimoController } from "./controller/EmprestimoController";
 import { EmprestimoService } from "./service/EmprestimoService";
+import { RegisterRoutes } from "./route/routes";
+import { setupSwagger } from "./config/swagger";
 
-const usuarioController = new UsuarioController();
 const livroController = new LivroController();
 const exemplarController = new ExemplarController();
 const emprestimosController = new EmprestimoController();
@@ -18,6 +18,15 @@ app.use(express.json());
 
 const PORT = process.env.PORT ?? 3090;
 
+const apiRouter = express.Router();
+RegisterRoutes(apiRouter);
+
+app.use('/library', apiRouter)
+
+RegisterRoutes(app);
+
+setupSwagger(app);
+
 setInterval(async () => {
   console.log("Verificando empréstimos atrasados");
   try {
@@ -27,13 +36,6 @@ setInterval(async () => {
     console.error("Erro na verificação automática:", err);
   }
 }, 1000 * 60 * 60 * 24);
-
-//Usuários
-app.get("/library/usuarios", usuarioController.listarUsuarios.bind(usuarioController));
-app.get("/library/usuarios/:cpf", usuarioController.listarUsuarioPorCpf.bind(usuarioController));
-app.post("/library/usuarios", usuarioController.cadastrarUsuario.bind(usuarioController));
-app.put("/library/usuarios/:cpf", usuarioController.atualizarUsuario.bind(usuarioController));
-app.delete("/library/usuarios/:cpf", usuarioController.removerUsuario.bind(usuarioController));
 
 //Livros
 app.get("/library/livros", livroController.listarLivros.bind(livroController));
