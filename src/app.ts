@@ -1,15 +1,9 @@
 import express from "express";
 import { CatalogoController } from "./controller/CatalogoController";
-import { LivroController } from "./controller/LivroController";
-import { ExemplarController } from "./controller/ExemplarController";
-import { EmprestimoController } from "./controller/EmprestimoController";
 import { EmprestimoService } from "./service/EmprestimoService";
 import { RegisterRoutes } from "./route/routes";
 import { setupSwagger } from "./config/swagger";
 
-const livroController = new LivroController();
-const exemplarController = new ExemplarController();
-const emprestimosController = new EmprestimoController();
 const catalogoController = new CatalogoController();
 const emprestimoService = new EmprestimoService();
 
@@ -36,12 +30,6 @@ setInterval(async () => {
     console.error("Erro na verificação automática:", err);
   }
 }, 1000 * 60 * 60 * 24);
-
-
-//Empréstimos
-app.get("/library/emprestimos", emprestimosController.listarEmprestimos.bind(emprestimosController));
-app.post("/library/emprestimos", emprestimosController.cadastrarEmprestimo.bind(emprestimosController));
-app.put("/library/emprestimos/:id/devolucao", emprestimosController.registrarDevolucao.bind(emprestimosController));
 
 //Catalogos
 app.get("/library/catalogos/categorias-usuario", catalogoController.listarCategoriasUsuario.bind(catalogoController));
