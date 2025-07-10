@@ -4,14 +4,14 @@ import { EmprestimoService } from "../service/EmprestimoService";
 export class EmprestimoController {
   private emprestimoService = new EmprestimoService();
 
-  listarEmprestimos(req: Request, res: Response): void {
+  async listarEmprestimos(req: Request, res: Response): Promise<void> {
     try {
-      const emprestimos = this.emprestimoService.exibeEmprestimos();
+      const emprestimos = await this.emprestimoService.exibeEmprestimos();
       res.status(200).json(emprestimos);
-    } catch (error: unknown) {
+    } catch (err: unknown) {
       let message: string = "Não foi possível listar os empréstimos!!!";
-      if (error instanceof Error) {
-        message = error.message;
+      if (err instanceof Error) {
+        message = err.message;
       }
       res.status(400).json({
         message: message,
@@ -19,17 +19,17 @@ export class EmprestimoController {
     }
   }
 
-  cadastrarEmprestimo(req: Request, res: Response): void {
+  async cadastrarEmprestimo(req: Request, res: Response): Promise<void> {
     try {
-      const emprestimo = this.emprestimoService.novoEmprestimo(req.body);
+      const emprestimo = await this.emprestimoService.novoEmprestimo(req.body);
       res.status(201).json({
         message: "Empréstimo cadastrado com sucesso!!!",
         emprestimo: emprestimo,
       });
-    } catch (error: unknown) {
+    } catch (err: unknown) {
       let message: string = "Não foi possível cadastrar empréstimo!!!";
-      if (error instanceof Error) {
-        message = error.message;
+      if (err instanceof Error) {
+        message = err.message;
       }
       res.status(400).json({
         message: message,
@@ -37,7 +37,7 @@ export class EmprestimoController {
     }
   }
 
-  registrarDevolucao(req: Request, res: Response): void {
+  async registrarDevolucao(req: Request, res: Response): Promise<void> {
     try{
       const { id } = req.params;
       const idNum = parseInt(id);
@@ -46,15 +46,15 @@ export class EmprestimoController {
           throw new Error("Id inválido!!!");
       }
       
-      const emprestimo = this.emprestimoService.registraDevolucao(idNum, req.body);
+      const emprestimo = await this.emprestimoService.registraDevolucao(idNum, req.body);
       res.status(200).json({
         message: "Devolução registrada com sucesso!!!",
         emprestimo: emprestimo,
       })
-    } catch (error: unknown) {
+    } catch (err: unknown) {
       let message: string = "Não foi possível registrar devolução!!!";
-      if (error instanceof Error) {
-        message = error.message;
+      if (err instanceof Error) {
+        message = err.message;
       }
       res.status(400).json({
         message: message,
