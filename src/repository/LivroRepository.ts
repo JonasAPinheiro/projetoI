@@ -1,5 +1,5 @@
 import executarComandoSQL from "../database/mysql";
-import { LivroEntity } from "../model/LivroEntity";
+import { LivroEntity } from "../model/entity/LivroEntity";
 
 export class LivroRepository {
   private static instance: LivroRepository;

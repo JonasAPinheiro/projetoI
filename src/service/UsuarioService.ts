@@ -1,11 +1,11 @@
-import { UsuarioEntity } from "../model/UsuarioEntity";
+import { UsuarioEntity } from "../model/entity/UsuarioEntity";
 import { CategoriaUsuarioRepository } from "../repository/CategoriaUsuarioRepository";
 import { CursoRepository } from "../repository/CursoRepository";
 import { UsuarioRepository } from "../repository/UsuarioRepository";
 
 export class UsuarioService {
   private usuarioRepository = UsuarioRepository.getInstance();
-  private categoriaUsuarioRepository = CategoriaUsuarioRepository.getInstance()
+  private categoriaUsuarioRepository = CategoriaUsuarioRepository.getInstance();
   private cursoRepository = CursoRepository.getInstance();
 
   async exibeUsuarios(): Promise<UsuarioEntity[]> {

@@ -1,5 +1,5 @@
 import executarComandoSQL from "../database/mysql";
-import { ExemplarEntity } from "../model/ExemplarEntity";
+import { ExemplarEntity } from "../model/entity/ExemplarEntity";
 
 export class ExemplarRepository {
   private static instance: ExemplarRepository;
@@ -35,16 +35,10 @@ export class ExemplarRepository {
   }
 
   async exibirExemplares(): Promise<ExemplarEntity[]> {
-    const resultado = await executarComandoSQL(`SELECT * FROM projbiblioteca.Exemplar`,[]);
+    const resultado = await executarComandoSQL(`SELECT * FROM projbiblioteca.Exemplar`, []);
 
     return resultado.map((linha: any) => {
-      return new ExemplarEntity(
-        linha.id, 
-        linha.codigo,
-        linha.quantidade,
-        linha.quantidadeEmprestada,
-        linha.livroId
-      );
+      return new ExemplarEntity(linha.id, linha.codigo, linha.quantidade, linha.quantidadeEmprestada, linha.livroId);
     });
   }
 
@@ -53,7 +47,7 @@ export class ExemplarRepository {
 
     const exemplar = resultado[0];
 
-    if(!exemplar) {
+    if (!exemplar) {
       throw new Error("Exemplar não encontrado");
     }
 
@@ -63,15 +57,15 @@ export class ExemplarRepository {
       exemplar.quantidade,
       exemplar.quantidadeEmprestada,
       exemplar.livroId
-    )
+    );
   }
 
-   async exibirExemplarPorId(id: number): Promise<ExemplarEntity> {
+  async exibirExemplarPorId(id: number): Promise<ExemplarEntity> {
     const resultado = await executarComandoSQL(`SELECT * FROM projbiblioteca.Exemplar WHERE id = ?`, [id]);
 
     const exemplar = resultado[0];
 
-    if(!exemplar) {
+    if (!exemplar) {
       throw new Error("Exemplar não encontrado");
     }
 
@@ -81,7 +75,7 @@ export class ExemplarRepository {
       exemplar.quantidade,
       exemplar.quantidadeEmprestada,
       exemplar.livroId
-    )
+    );
   }
 
   async insereExemplar(exemplar: ExemplarEntity): Promise<ExemplarEntity> {

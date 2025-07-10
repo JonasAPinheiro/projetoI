@@ -1,6 +1,6 @@
-import { CategoriaLivroEntity } from "../model/CategoriaLivroEntity";
-import { CategoriaUsuarioEntity } from "../model/CategoriaUsuarioEntity";
-import { CursoEntity } from "../model/CursoEntity";
+import { CategoriaLivroEntity } from "../model/entity/CategoriaLivroEntity";
+import { CategoriaUsuarioEntity } from "../model/entity/CategoriaUsuarioEntity";
+import { CursoEntity } from "../model/entity/CursoEntity";
 import { CategoriaLivroRepository } from "../repository/CategoriaLivroRepository";
 import { CategoriaUsuarioRepository } from "../repository/CategoriaUsuarioRepository";
 import { CursoRepository } from "../repository/CursoRepository";

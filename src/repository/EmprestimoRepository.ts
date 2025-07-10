@@ -1,5 +1,5 @@
 import executarComandoSQL from "../database/mysql";
-import { EmprestimoEntity } from "../model/EmprestimoEntity";
+import { EmprestimoEntity } from "../model/entity/EmprestimoEntity";
 
 export class EmprestimoRepository {
   private static instance: EmprestimoRepository;
@@ -78,19 +78,30 @@ export class EmprestimoRepository {
   async insereEmprestimo(emprestimo: EmprestimoEntity): Promise<EmprestimoEntity> {
     const { dataEmprestimo, dataDevolucao, dataEntrega, diasAtraso, suspensaoAte, usuarioId, exemplarId } = emprestimo;
 
-    const resultado = await executarComandoSQL(`
+    const resultado = await executarComandoSQL(
+      `
       INSERT INTO projbiblioteca.Emprestimo( dataEmprestimo, dataDevolucao, dataEntrega, diasAtraso, suspensaoAte, usuarioId, exemplarId) VALUES(?, ?, ?, ?, ?, ?, ?)
       `,
       [dataEmprestimo, dataDevolucao, dataEntrega, diasAtraso, suspensaoAte, usuarioId, exemplarId]
     );
 
-    const novoEmprestimo = new EmprestimoEntity(resultado.insertId, usuarioId, exemplarId, dataEmprestimo, dataDevolucao, dataEntrega, diasAtraso, suspensaoAte);
+    const novoEmprestimo = new EmprestimoEntity(
+      resultado.insertId,
+      usuarioId,
+      exemplarId,
+      dataEmprestimo,
+      dataDevolucao,
+      dataEntrega,
+      diasAtraso,
+      suspensaoAte
+    );
     console.log("Emprestimo inserido com sucesso:", novoEmprestimo);
     return novoEmprestimo;
   }
 
   async atualizaEmprestimo(id: number, novoEmprestimo: EmprestimoEntity): Promise<EmprestimoEntity> {
-    const { dataEmprestimo, dataDevolucao, dataEntrega, diasAtraso, suspensaoAte, usuarioId, exemplarId } = novoEmprestimo;
+    const { dataEmprestimo, dataDevolucao, dataEntrega, diasAtraso, suspensaoAte, usuarioId, exemplarId } =
+      novoEmprestimo;
 
     await executarComandoSQL(
       `
@@ -99,8 +110,8 @@ export class EmprestimoRepository {
       [dataEmprestimo, dataDevolucao, dataEntrega, diasAtraso, suspensaoAte, usuarioId, exemplarId, id]
     );
 
-     const emprestimoAtualizado = await this.exibirEmprestimoPorId(id);
-     console.log("Empréstimo atualizado com sucesso:", emprestimoAtualizado);
-     return emprestimoAtualizado;
-  };
+    const emprestimoAtualizado = await this.exibirEmprestimoPorId(id);
+    console.log("Empréstimo atualizado com sucesso:", emprestimoAtualizado);
+    return emprestimoAtualizado;
+  }
 }

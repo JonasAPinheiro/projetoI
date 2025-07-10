@@ -1,4 +1,4 @@
-import { ExemplarEntity } from "../model/ExemplarEntity";
+import { ExemplarEntity } from "../model/entity/ExemplarEntity";
 import { ExemplarRepository } from "../repository/ExemplarRepository";
 import { LivroRepository } from "../repository/LivroRepository";
 
@@ -25,13 +25,7 @@ export class ExemplarService {
       throw new Error("Livro não encontrado!!!");
     }
 
-    const exemplar = new ExemplarEntity(
-      undefined, 
-      undefined, 
-      data.quantidade, 
-      data.quantidadeEmprestada, 
-      data.livroId
-    );
+    const exemplar = new ExemplarEntity(undefined, undefined, data.quantidade, data.quantidadeEmprestada, data.livroId);
 
     return await this.exemplarRepository.insereExemplar(exemplar);
   }

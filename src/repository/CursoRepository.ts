@@ -1,5 +1,5 @@
 import executarComandoSQL from "../database/mysql";
-import { CursoEntity } from "../model/CursoEntity";
+import { CursoEntity } from "../model/entity/CursoEntity";
 
 export class CursoRepository {
   private static instance: CursoRepository;
@@ -36,7 +36,13 @@ export class CursoRepository {
       return;
     }
 
-    const cursos = ["Administração", "Análise e Desenvolvimento de Sistemas", "Educação Física", "Engenharia da Computação", "Nutrição"];
+    const cursos = [
+      "Administração",
+      "Análise e Desenvolvimento de Sistemas",
+      "Educação Física",
+      "Engenharia da Computação",
+      "Nutrição",
+    ];
 
     for (let i = 0; i < cursos.length; i++) {
       await executarComandoSQL(`INSERT INTO projbiblioteca.Curso(nome) VALUES(?)`, [cursos[i]]);
