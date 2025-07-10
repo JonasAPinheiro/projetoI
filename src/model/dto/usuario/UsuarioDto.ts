@@ -1,4 +1,4 @@
-type Status = "ativo" | "inativo" | "suspenso";
+import { Status } from "../../types/Status";
 
 export class UsuarioDto {
   id: number;
