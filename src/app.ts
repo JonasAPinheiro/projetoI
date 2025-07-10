@@ -37,13 +37,6 @@ setInterval(async () => {
   }
 }, 1000 * 60 * 60 * 24);
 
-//Livros
-app.get("/library/livros", livroController.listarLivros.bind(livroController));
-app.get("/library/livros/:isbn", livroController.listarLivroPorIsbn.bind(livroController));
-app.post("/library/livros", livroController.cadastrarLivro.bind(livroController));
-app.put("/library/livros/:isbn", livroController.atualizarLivro.bind(livroController));
-app.delete("/library/livros/:isbn", livroController.removerLivro.bind(livroController));
-
 //Estoque
 app.get("/library/estoque", exemplarController.listarExemplares.bind(exemplarController));
 app.get("/library/estoque/:codigo", exemplarController.listarExemplarPorCodigo.bind(exemplarController));
