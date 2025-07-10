@@ -1,27 +1,21 @@
 import { Status } from "../../types/Status";
 
-export class UsuarioDto {
-  id: number;
+export class UsuarioUpdateDto {
   nome: string;
   email: string;
-  cpf: string;
   ativo: Status;
   categoriaId: number;
   cursoId: number;
 
   constructor(
-    id: any,
-    nome: any,
-    email: any,
-    cpf: any,
-    ativo: any,
-    categoriaId: any,
-    cursoId: any
+    nome: string,
+    email: string,
+    ativo: Status,
+    categoriaId: number,
+    cursoId: number
   ) {
-    this.id = id;
     this.nome = nome;
     this.email = email;
-    this.cpf = cpf;
     this.ativo = ativo;
     this.categoriaId = categoriaId;
     this.cursoId = cursoId;

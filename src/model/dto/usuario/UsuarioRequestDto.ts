@@ -4,7 +4,7 @@ export class UsuarioRequestDto {
   nome: string;
   email: string;
   cpf: string;
-  ativo: Status;
+  ativo: Status = "ativo";
   categoriaId: number;
   cursoId: number;
 
@@ -12,14 +12,12 @@ export class UsuarioRequestDto {
     nome: string,
     email: string,
     cpf: string,
-    ativo: Status,
     categoriaId: number,
-    cursoId: number
+    cursoId: number,
   ) {
     this.nome = nome;
     this.email = email;
     this.cpf = cpf;
-    this.ativo = ativo;
     this.categoriaId = categoriaId;
     this.cursoId = cursoId;
   }
