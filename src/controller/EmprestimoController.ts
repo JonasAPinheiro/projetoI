@@ -1,64 +1,54 @@
-import { Request, Response } from "express";
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Res, Route, Tags, TsoaResponse } from "tsoa";
 import { EmprestimoService } from "../service/EmprestimoService";
+import { BasicResponseDto } from "../model/dto/BasicResponseDto";
+import { EmprestimoEntity } from "../model/entity/EmprestimoEntity";
+import { EmprestimoRequestDto } from "../model/dto/emprestimo/EmprestimoRequestDto";
+import { EmprestimoUpdateDto } from "../model/dto/emprestimo/EmprestimoUpdateDto";
 
-export class EmprestimoController {
+@Route("emprestimos")
+@Tags("emprestimos")
+export class EmprestimoController extends Controller {
   private emprestimoService = new EmprestimoService();
 
-  async listarEmprestimos(req: Request, res: Response): Promise<void> {
+  @Get()
+  async listarEmprestimos(
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ): Promise<void> {
     try {
-      const emprestimos = await this.emprestimoService.exibeEmprestimos();
-      res.status(200).json(emprestimos);
-    } catch (err: unknown) {
-      let message: string = "Não foi possível listar os empréstimos!!!";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const emprestimos: EmprestimoEntity[] = await this.emprestimoService.exibeEmprestimos();
+      return sucess(200, new BasicResponseDto("Empréstimos listados com sucesso!", emprestimos));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 
-  async cadastrarEmprestimo(req: Request, res: Response): Promise<void> {
+  @Post()
+  async cadastrarEmprestimo(
+    @Body() dto: EmprestimoRequestDto,
+    @Res() sucess: TsoaResponse<201, BasicResponseDto>,
+    @Res() fail: TsoaResponse<400, BasicResponseDto>
+  ): Promise<void> {
     try {
-      const emprestimo = await this.emprestimoService.novoEmprestimo(req.body);
-      res.status(201).json({
-        message: "Empréstimo cadastrado com sucesso!!!",
-        emprestimo: emprestimo,
-      });
-    } catch (err: unknown) {
-      let message: string = "Não foi possível cadastrar empréstimo!!!";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const emprestimo = await this.emprestimoService.novoEmprestimo(dto);
+      return sucess(201, new BasicResponseDto("Empréstimo criado com sucesso!", emprestimo));
+    } catch (error: any) {
+      return fail(400, new BasicResponseDto(error.message, undefined));
     }
   }
 
-  async registrarDevolucao(req: Request, res: Response): Promise<void> {
-    try{
-      const { id } = req.params;
-      const idNum = parseInt(id);
-
-      if (isNaN(idNum)) {
-          throw new Error("Id inválido!!!");
-      }
-      
-      const emprestimo = await this.emprestimoService.registraDevolucao(idNum, req.body);
-      res.status(200).json({
-        message: "Devolução registrada com sucesso!!!",
-        emprestimo: emprestimo,
-      })
-    } catch (err: unknown) {
-      let message: string = "Não foi possível registrar devolução!!!";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+  @Put("{id}/devolucao")
+  async registrarDevolucao(
+    @Path() id: number,
+    @Body() dto: EmprestimoUpdateDto,
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ): Promise<void> {
+    try {
+      const emprestimo = await this.emprestimoService.registraDevolucao(id, dto);
+      return sucess(200, new BasicResponseDto("Empréstimo atualizado com sucesso!", emprestimo));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 }
