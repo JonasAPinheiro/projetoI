@@ -4,17 +4,29 @@ import { UsuarioController } from "./controller/UsuarioController";
 import { LivroController } from "./controller/LivroController";
 import { ExemplarController } from "./controller/ExemplarController";
 import { EmprestimoController } from "./controller/EmprestimoController";
+import { EmprestimoService } from "./service/EmprestimoService";
 
 const usuarioController = new UsuarioController();
 const livroController = new LivroController();
 const exemplarController = new ExemplarController();
 const emprestimosController = new EmprestimoController();
 const catalogoController = new CatalogoController();
+const emprestimoService = new EmprestimoService();
 
 const app = express();
 app.use(express.json());
 
 const PORT = process.env.PORT ?? 3090;
+
+setInterval(async () => {
+  console.log("Verificando empréstimos atrasados");
+  try {
+    await emprestimoService.verificarAtrasosPendentes();
+    console.log("Verificação de suspensões concluída");
+  } catch (err) {
+    console.error("Erro na verificação automática:", err);
+  }
+}, 1000 * 60 * 60 * 24);
 
 //Usuários
 app.get("/library/usuarios", usuarioController.listarUsuarios.bind(usuarioController));
