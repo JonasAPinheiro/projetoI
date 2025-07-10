@@ -1,12 +1,9 @@
 import express from "express";
-import { CatalogoController } from "./controller/CatalogoController";
 import { EmprestimoService } from "./service/EmprestimoService";
 import { RegisterRoutes } from "./route/routes";
 import { setupSwagger } from "./config/swagger";
 
-const catalogoController = new CatalogoController();
 const emprestimoService = new EmprestimoService();
-
 const app = express();
 app.use(express.json());
 
@@ -14,10 +11,7 @@ const PORT = process.env.PORT ?? 3090;
 
 const apiRouter = express.Router();
 RegisterRoutes(apiRouter);
-
-app.use('/library', apiRouter)
-
-RegisterRoutes(app);
+app.use("/library", apiRouter);
 
 setupSwagger(app);
 
@@ -30,10 +24,5 @@ setInterval(async () => {
     console.error("Erro na verificação automática:", err);
   }
 }, 1000 * 60 * 60 * 24);
-
-//Catalogos
-app.get("/library/catalogos/categorias-usuario", catalogoController.listarCategoriasUsuario.bind(catalogoController));
-app.get("/library/catalogos/categorias-livro", catalogoController.listarCategoriasLivro.bind(catalogoController));
-app.get("/library/catalogos/cursos", catalogoController.listarCursos.bind(catalogoController));
 
 app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));

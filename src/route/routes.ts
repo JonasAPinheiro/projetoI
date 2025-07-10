@@ -11,6 +11,8 @@ import { LivroController } from './../controller/LivroController';
 import { ExemplarController } from './../controller/ExemplarController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { EmprestimoController } from './../controller/EmprestimoController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { CatalogoController } from './../controller/CatalogoController';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
 
 
@@ -702,6 +704,99 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'registrarDevolucao',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsCatalogoController_listarCategoriasUsuario: Record<string, TsoaRoute.ParameterSchema> = {
+                sucess: {"in":"res","name":"200","required":true,"ref":"BasicResponseDto"},
+                notFound: {"in":"res","name":"400","required":true,"ref":"BasicResponseDto"},
+        };
+        app.get('/catalogos/categorias-usuario',
+            ...(fetchMiddlewares<RequestHandler>(CatalogoController)),
+            ...(fetchMiddlewares<RequestHandler>(CatalogoController.prototype.listarCategoriasUsuario)),
+
+            async function CatalogoController_listarCategoriasUsuario(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsCatalogoController_listarCategoriasUsuario, request, response });
+
+                const controller = new CatalogoController();
+
+              await templateService.apiHandler({
+                methodName: 'listarCategoriasUsuario',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsCatalogoController_listarCategoriasLivro: Record<string, TsoaRoute.ParameterSchema> = {
+                sucess: {"in":"res","name":"200","required":true,"ref":"BasicResponseDto"},
+                notFound: {"in":"res","name":"400","required":true,"ref":"BasicResponseDto"},
+        };
+        app.get('/catalogos/categorias-livro',
+            ...(fetchMiddlewares<RequestHandler>(CatalogoController)),
+            ...(fetchMiddlewares<RequestHandler>(CatalogoController.prototype.listarCategoriasLivro)),
+
+            async function CatalogoController_listarCategoriasLivro(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsCatalogoController_listarCategoriasLivro, request, response });
+
+                const controller = new CatalogoController();
+
+              await templateService.apiHandler({
+                methodName: 'listarCategoriasLivro',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsCatalogoController_listarCursos: Record<string, TsoaRoute.ParameterSchema> = {
+                sucess: {"in":"res","name":"200","required":true,"ref":"BasicResponseDto"},
+                notFound: {"in":"res","name":"400","required":true,"ref":"BasicResponseDto"},
+        };
+        app.get('/catalogos/cursos',
+            ...(fetchMiddlewares<RequestHandler>(CatalogoController)),
+            ...(fetchMiddlewares<RequestHandler>(CatalogoController.prototype.listarCursos)),
+
+            async function CatalogoController_listarCursos(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsCatalogoController_listarCursos, request, response });
+
+                const controller = new CatalogoController();
+
+              await templateService.apiHandler({
+                methodName: 'listarCursos',
                 controller,
                 response,
                 next,
