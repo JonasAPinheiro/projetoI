@@ -1,114 +1,83 @@
-import { Request, Response } from "express";
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Res, Route, Tags, TsoaResponse } from "tsoa";
 import { ExemplarService } from "../service/ExemplarService";
+import { BasicResponseDto } from "../model/dto/BasicResponseDto";
+import { ExemplarEntity } from "../model/entity/ExemplarEntity";
+import { ExemplarRequestDto } from "../model/dto/exemplar/ExemplarRequestDto";
+import { ExemplarUpdateDto } from "../model/dto/exemplar/ExemplarUpdateDto";
 
-export class ExemplarController {
+@Route("estoque")
+@Tags("estoque")
+export class ExemplarController extends Controller {
   private exemplarService = new ExemplarService();
 
-  async listarExemplares(req: Request, res: Response): Promise<void> {
+  @Get()
+  async listarExemplares(
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ): Promise<void> {
     try {
-      const exemplares = await this.exemplarService.exibeExemplares();
-      res.status(200).json(exemplares);
-    } catch (err: unknown) {
-      let message: string = "Não foi possível listar os exemplares!!!";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const exemplares: ExemplarEntity[] = await this.exemplarService.exibeExemplares();
+      return sucess(200, new BasicResponseDto("Exemplares listados com sucesso!", exemplares));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 
-  async listarExemplarPorCodigo(req: Request, res: Response): Promise<void> {
+  @Get("{codigo}")
+  async listarExemplarPorCodigo(
+    @Path() codigo: number,
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ): Promise<void> {
     try {
-      const { codigo } = req.params;
-      const codigoNum = parseInt(codigo);
-      const exemplar = await this.exemplarService.exibeExemplarPorCodigo(codigoNum);
-
-      if (isNaN(codigoNum)) {
-        throw new Error("Código inválido!");
-      }
-
-      res.status(200).json(exemplar);
-    } catch (err: unknown) {
-      let message: string = "Não foi possível encontrar o exemplar com esse código!!!";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const exemplar: ExemplarEntity = await this.exemplarService.exibeExemplarPorCodigo(codigo);
+      return sucess(200, new BasicResponseDto("Exemplar encontrado!", exemplar));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 
-  async cadastrarExemplar(req: Request, res: Response): Promise<void> {
+  @Post()
+  async cadastrarExemplar(
+    @Body() dto: ExemplarRequestDto,
+    @Res() sucess: TsoaResponse<201, BasicResponseDto>,
+    @Res() fail: TsoaResponse<400, BasicResponseDto>
+  ): Promise<void> {
     try {
-      const exemplar = await this.exemplarService.novoExemplar(req.body);
-
-      res.status(201).json({
-        message: "Exemplar cadastrado com sucesso!!!",
-        exemplar: exemplar,
-      });
-    } catch (err: unknown) {
-      let message: string = "Não foi possível cadastrar exemplar!!!";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const exemplar = await this.exemplarService.novoExemplar(dto);
+      return sucess(201, new BasicResponseDto("Exemplar criado com sucesso!", exemplar));
+    } catch (error: any) {
+      return fail(400, new BasicResponseDto(error.message, undefined));
     }
   }
 
-  async atualizarExemplar(req: Request, res: Response): Promise<void> {
+  @Put("{codigo}")
+  async atualizarExemplar(
+    @Path() codigo: number,
+    @Body() dto: ExemplarUpdateDto,
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ): Promise<void> {
     try {
-      const { codigo } = req.params;
-      const codigoNum = parseInt(codigo);
-      const exemplar = await this.exemplarService.atualizaExemplar(codigoNum, req.body);
-
-      if (isNaN(codigoNum)) {
-        throw new Error("Código inválido!");
-      }
-
-      res.status(200).json({
-        message: "Exemplar atualizado com sucesso!!!",
-        exemplar: exemplar,
-      });
-    } catch (err: unknown) {
-      let message: string = "Não foi possível ataualizar exemplar!!!";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const exemplar = await this.exemplarService.atualizaExemplar(codigo, dto);
+      return sucess(200, new BasicResponseDto("Exemplar atualizado com sucesso!", exemplar));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 
-  async removerExemplar(req: Request, res: Response): Promise<void> {
+  @Delete("{codigo}")
+  async removerExemplar(
+    @Path() codigo: number,
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ): Promise<void> {
     try {
-      const { codigo } = req.params;
-      const codigoNum = parseInt(codigo);
-
-      if (isNaN(codigoNum)) {
-        throw new Error("Código inválido!");
-      }
-
-      const exemplar = await this.exemplarService.exibeExemplarPorCodigo(codigoNum);
-
-      await this.exemplarService.removeExemplar(codigoNum);
-      res.status(200).json({
-        message: "Exemplar removido com sucesso!!!",
-        exemplar: exemplar,
-      });
-    } catch (err: unknown) {
-      let message: string = "Não foi possível remover exemplar!!!";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const exemplar = await this.exemplarService.exibeExemplarPorCodigo(codigo);
+      await this.exemplarService.removeExemplar(codigo);
+      return sucess(200, new BasicResponseDto("Exemplar removido com sucesso!", exemplar));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 }
