@@ -1,51 +1,51 @@
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Res, Route, Tags, TsoaResponse } from "tsoa";
 import { CatalogoService } from "../service/CatalogoService";
-import { Request, Response } from "express";
+import { BasicResponseDto } from "../model/dto/BasicResponseDto";
+import { CategoriaUsuarioEntity } from "../model/entity/CategoriaUsuarioEntity";
+import { CategoriaLivroEntity } from "../model/entity/CategoriaLivroEntity";
+import { CursoEntity } from "../model/entity/CursoEntity";
 
-export class CatalogoController {
+@Route("catalogos")
+@Tags("catalogos")
+export class CatalogoController extends Controller {
   private catalogoService = new CatalogoService();
 
-  async listarCategoriasUsuario(req: Request, res: Response) {
+  @Get("categorias-usuario")
+  async listarCategoriasUsuario(
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ) {
     try {
-      const categorias = await this.catalogoService.listarCategoriasUsuarios();
-      res.status(200).json(categorias);
-    } catch (error: unknown) {
-      let message: string = "Não foi possivel listar as categorias de usuários!!!";
-      if (error instanceof Error) {
-        message = error.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const categorias: CategoriaUsuarioEntity[] = await this.catalogoService.listarCategoriasUsuarios();
+      return sucess(200, new BasicResponseDto("Categorias de Usuários listadas com sucesso!", categorias));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 
-  async listarCategoriasLivro(req: Request, res: Response) {
+  @Get("categorias-livro")
+  async listarCategoriasLivro(
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ) {
     try {
-      const categorias = await this.catalogoService.listarCategoriasLivros();
-      res.status(200).json(categorias);
-    } catch (error: unknown) {
-      let message: string = "Não foi possível listar as categorias de livros!!!";
-      if (error instanceof Error) {
-        message = error.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const categorias: CategoriaLivroEntity[] = await this.catalogoService.listarCategoriasLivros();
+      return sucess(200, new BasicResponseDto("Categorias de Livros listadas com sucesso!", categorias));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 
-  async listarCursos(req: Request, res: Response) {
+  @Get("cursos")
+  async listarCursos(
+    @Res() sucess: TsoaResponse<200, BasicResponseDto>,
+    @Res() notFound: TsoaResponse<400, BasicResponseDto>
+  ) {
     try {
-      const cursos = await this.catalogoService.listarCursos();
-      res.status(200).json(cursos);
-    } catch (error: unknown) {
-      let message: string = "Não foi possível listar os cursos!!!";
-      if (error instanceof Error) {
-        message = error.message;
-      }
-      res.status(400).json({
-        message: message,
-      });
+      const cursos: CursoEntity[] = await this.catalogoService.listarCursos();
+      return sucess(200, new BasicResponseDto("Cursos listados com sucesso!", cursos));
+    } catch (error: any) {
+      return notFound(400, new BasicResponseDto(error.message, undefined));
     }
   }
 }
