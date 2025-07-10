@@ -4,8 +4,10 @@ import { LivroEntity } from "../model/entity/LivroEntity";
 export class LivroRepository {
   private static instance: LivroRepository;
 
-  constructor() {
-    this.createTable();
+  constructor() {}
+
+  async init() {
+    await this.createTable();
   }
 
   static getInstance(): LivroRepository {

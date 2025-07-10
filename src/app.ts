@@ -2,27 +2,37 @@ import express from "express";
 import { EmprestimoService } from "./service/EmprestimoService";
 import { RegisterRoutes } from "./route/routes";
 import { setupSwagger } from "./config/swagger";
+import { inicializarTabelas } from "./database/Initializer";
 
-const emprestimoService = new EmprestimoService();
-const app = express();
-app.use(express.json());
+async function main() {
+  await inicializarTabelas();
 
-const PORT = process.env.PORT ?? 3090;
+  const emprestimoService = new EmprestimoService();
+  const app = express();
+  app.use(express.json());
 
-const apiRouter = express.Router();
-RegisterRoutes(apiRouter);
-app.use("/library", apiRouter);
+  const PORT = process.env.PORT ?? 3090;
 
-setupSwagger(app);
+  const apiRouter = express.Router();
+  RegisterRoutes(apiRouter);
+  app.use("/library", apiRouter);
 
-setInterval(async () => {
-  console.log("Verificando empréstimos atrasados");
-  try {
-    await emprestimoService.verificarAtrasosPendentes();
-    console.log("Verificação de suspensões concluída");
-  } catch (err) {
-    console.error("Erro na verificação automática:", err);
-  }
-}, 1000 * 60 * 60 * 24);
+  setupSwagger(app);
 
-app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));
+  setInterval(async () => {
+    console.log("Verificando empréstimos atrasados");
+    try {
+      await emprestimoService.verificarAtrasosPendentes();
+      console.log("Verificação de suspensões concluída");
+    } catch (err) {
+      console.error("Erro na verificação automática:", err);
+    }
+  }, 1000 * 60 * 60 * 24);
+
+  app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));
+}
+
+main().catch((error: any) => {
+  console.error("Erro ao iniciar a aplicação:", error);
+});
+

@@ -4,8 +4,10 @@ import { CursoEntity } from "../model/entity/CursoEntity";
 export class CursoRepository {
   private static instance: CursoRepository;
 
-  private constructor() {
-    this.createTable();
+  private constructor() {}
+
+  async init() {
+    await this.createTable();
   }
 
   static getInstance(): CursoRepository {

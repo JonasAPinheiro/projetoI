@@ -4,8 +4,10 @@ import { EmprestimoEntity } from "../model/entity/EmprestimoEntity";
 export class EmprestimoRepository {
   private static instance: EmprestimoRepository;
 
-  constructor() {
-    this.createTable();
+  constructor() {}
+
+  async init() {
+    await this.createTable();
   }
 
   static getInstance(): EmprestimoRepository {

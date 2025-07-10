@@ -4,8 +4,10 @@ import { CategoriaUsuarioEntity } from "../model/entity/CategoriaUsuarioEntity";
 export class CategoriaUsuarioRepository {
   private static instance: CategoriaUsuarioRepository;
 
-  private constructor() {
-    this.createTable();
+  private constructor() {}
+
+  async init() {
+    await this.createTable();
   }
 
   static getInstance(): CategoriaUsuarioRepository {

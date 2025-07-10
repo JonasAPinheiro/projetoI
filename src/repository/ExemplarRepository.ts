@@ -4,8 +4,10 @@ import { ExemplarEntity } from "../model/entity/ExemplarEntity";
 export class ExemplarRepository {
   private static instance: ExemplarRepository;
 
-  constructor() {
-    this.createTable();
+  constructor() {}
+
+  async init() {
+    await this.createTable();
   }
 
   static getInstance(): ExemplarRepository {
