@@ -66,6 +66,24 @@ export class ExemplarRepository {
     )
   }
 
+   async exibirExemplarPorId(id: number): Promise<ExemplarEntity> {
+    const resultado = await executarComandoSQL(`SELECT * FROM projbiblioteca.Exemplar WHERE id = ?`, [id]);
+
+    const exemplar = resultado[0];
+
+    if(!exemplar) {
+      throw new Error("Exemplar não encontrado");
+    }
+
+    return new ExemplarEntity(
+      exemplar.id,
+      exemplar.codigo,
+      exemplar.quantidade,
+      exemplar.quantidadeEmprestada,
+      exemplar.livroId
+    )
+  }
+
   async insereExemplar(exemplar: ExemplarEntity): Promise<ExemplarEntity> {
     const { codigo, quantidade, quantidadeEmprestada, disponivel, livroId } = exemplar;
 

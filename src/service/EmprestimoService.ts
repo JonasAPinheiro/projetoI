@@ -12,13 +12,17 @@ export class EmprestimoService {
   private livroRepository = LivroRepository.getInstance();
   private catalogoService = new CatalogoService();
 
-  exibeEmprestimos(): EmprestimoEntity[] {
+  async exibeEmprestimos(): Promise<EmprestimoEntity[]> {
     return this.emprestimoRepository.exibirEmprestimos();
   }
 
   async novoEmprestimo(data: any): Promise<EmprestimoEntity> {
-    const usuario =  await this.usuarioRepository.exibirUsuarioPorId(data.usuarioId);
-    if (!usuario){
+    if (!data.usuarioId || !data.exemplarId || !data.dataEmprestimo) {
+      throw new Error("Preencha todos os campos!!!");
+    }
+
+    const usuario = await this.usuarioRepository.exibirUsuarioPorId(data.usuarioId);
+    if (!usuario) {
       throw new Error("Usuário não existe!!!");
     }
 
@@ -26,25 +30,26 @@ export class EmprestimoService {
       throw new Error("Usuário inativo, não é possível realizar o empréstimo!!!");
     }
 
-    if (!data.usuarioId || !data.exemplarId || !data.dataEmprestimo) {
-      throw new Error("Preencha todos os campos!!!");
-    }
-
-    const exemplar = this.exemplarRepository.exibirExemplarPorCodigo(data.exemplarId);
-    if (!exemplar){
+    const exemplar = await this.exemplarRepository.exibirExemplarPorId(data.exemplarId);
+    if (!exemplar) {
       throw new Error("Exemplar não existe!!!");
     }
-    
+
     if (exemplar.quantidade <= exemplar.quantidadeEmprestada) {
       throw new Error("Exemplar não está disponível para empréstimo!!!");
     }
 
-    const livro = this.livroRepository.exibirLivroPorId(exemplar.livroId);
+    const livro = await this.livroRepository.exibirLivroPorId(exemplar.livroId);
     if (!livro) throw new Error("Livro não encontrado!!!");
 
-    const { limiteLivros, prazoDias } = await this.obterLimitesEmprestimo(usuario.categoriaId, usuario.cursoId, livro.categoriaId);
+    const { limiteLivros, prazoDias } = await this.obterLimitesEmprestimo(
+      usuario.categoriaId,
+      usuario.cursoId,
+      livro.categoriaId
+    );
 
-    const emprestimosPendentes = this.emprestimoRepository.exibirEmprestimos().filter(e => e.usuarioId === data.usuarioId && !e.dataEntrega);
+    const emprestimos = await this.emprestimoRepository.exibirEmprestimos();
+    const emprestimosPendentes = emprestimos.filter((e) => e.usuarioId === data.usuarioId && !e.dataEntrega);
 
     if (emprestimosPendentes.length >= limiteLivros) {
       throw new Error("Usuário atingiu o limite de empréstimos permitidos!!!");
@@ -53,19 +58,26 @@ export class EmprestimoService {
     const dataEmprestimo = new Date(data.dataEmprestimo);
     const dataDevolucao = new Date(dataEmprestimo.getTime() + prazoDias * 86400000);
 
-    const emprestimo = new EmprestimoEntity(undefined, data.usuarioId, data.exemplarId, data.dataEmprestimo, dataDevolucao, null, 0, null);
-
-    this.emprestimoRepository.insereEmprestimo(emprestimo);
+    const emprestimo = new EmprestimoEntity(
+      undefined,
+      data.usuarioId,
+      data.exemplarId,
+      data.dataEmprestimo,
+      dataDevolucao,
+      null,
+      0,
+      null
+    );
 
     exemplar.quantidadeEmprestada++;
     exemplar.disponivel = exemplar.quantidade > exemplar.quantidadeEmprestada;
-    this.exemplarRepository.atualizaExemplar(data.exemplarId, exemplar);
+    await this.exemplarRepository.atualizaExemplar(exemplar.codigo, exemplar);
 
-    return emprestimo;
+    return await this.emprestimoRepository.insereEmprestimo(emprestimo);
   }
 
   async registraDevolucao(id: number, data: any): Promise<EmprestimoEntity> {
-    const emprestimo = this.emprestimoRepository.exibirEmprestimoPorId(id);
+    const emprestimo = await this.emprestimoRepository.exibirEmprestimoPorId(id);
 
     if (emprestimo.dataEntrega) {
       throw new Error("Este empréstimo já foi devolvido!!!");
@@ -73,22 +85,39 @@ export class EmprestimoService {
 
     emprestimo.dataEntrega = new Date(data.dataEntrega);
 
-    const diasAtraso = this.calcularAtraso(emprestimo);
+    const diasAtraso = await this.calcularAtraso(emprestimo);
     await this.aplicarSuspensao(emprestimo, diasAtraso);
 
-    this.emprestimoRepository.atualizaEmprestimo(emprestimo.id, emprestimo);
-
-    const exemplar = this.exemplarRepository.exibirExemplarPorCodigo(emprestimo.exemplarId);
+    const exemplar = await this.exemplarRepository.exibirExemplarPorId(emprestimo.exemplarId);
     if (exemplar) {
       exemplar.quantidadeEmprestada--;
       exemplar.disponivel = exemplar.quantidade > exemplar.quantidadeEmprestada;
-      this.exemplarRepository.atualizaExemplar(emprestimo.exemplarId, exemplar);
+      await this.exemplarRepository.atualizaExemplar(exemplar.codigo, exemplar);
     }
 
-    return emprestimo;
+    return await this.emprestimoRepository.atualizaEmprestimo(emprestimo.id, emprestimo);
   }
 
-  private calcularAtraso(emprestimo: EmprestimoEntity): number {
+  async verificarAtrasosPendentes(): Promise<void> {
+    const emprestimos = await this.emprestimoRepository.exibirEmprestimos();
+    const diaAtual = new Date();
+
+    const emprestimosAtrasados = emprestimos.filter((e) => {
+      return !e.dataEntrega && new Date(e.dataDevolucao) < diaAtual;
+    });
+
+    for (const emprestimo of emprestimosAtrasados) {
+      const diasAtraso = Math.max(
+        Math.ceil((diaAtual.getTime() - new Date(emprestimo.dataDevolucao).getTime()) / (1000 * 60 * 60 * 24)),
+        0
+      );
+
+      await this.aplicarSuspensao(emprestimo, diasAtraso, diaAtual);
+      await this.emprestimoRepository.atualizaEmprestimo(emprestimo.id, emprestimo);
+    }
+  }
+
+  private async calcularAtraso(emprestimo: EmprestimoEntity): Promise<number> {
     const devolucao = new Date(emprestimo.dataDevolucao);
     const entrega = emprestimo.dataEntrega;
     if (!entrega) {
@@ -101,16 +130,15 @@ export class EmprestimoService {
     return diasAtraso;
   }
 
-  private async aplicarSuspensao(emprestimo: EmprestimoEntity, diasAtraso: number) {
+  private async aplicarSuspensao(emprestimo: EmprestimoEntity, diasAtraso: number, dataBase?: Date): Promise<void> {
     if (diasAtraso > 0) {
-      const entrega = emprestimo.dataEntrega;
-      if (!entrega) {
-        throw new Error("Data de entrega inválida!!!");
+      const base = dataBase ?? emprestimo.dataEntrega;
+      if (!base) {
+        throw new Error("Data de base para suspensão inválida!");
       }
 
       const suspensaoDias = diasAtraso * 3;
-      const suspensao = new Date(entrega.getTime() + suspensaoDias * 86400000);
-
+      const suspensao = new Date(base.getTime() + suspensaoDias * 86400000);
       emprestimo.suspensaoAte = suspensao;
 
       const usuario = await this.usuarioRepository.exibirUsuarioPorId(emprestimo.usuarioId);
@@ -118,20 +146,28 @@ export class EmprestimoService {
         if (suspensaoDias > 60) {
           usuario.ativo = "suspenso";
         } else {
-          const emprestimosUsuario = this.emprestimoRepository.exibirEmprestimos().filter((e) => e.usuarioId == usuario.id && e.suspensaoAte && new Date(e.suspensaoAte) > new Date());
+          const emprestimos = await this.emprestimoRepository.exibirEmprestimos();
+          const ativos = emprestimos.filter(
+            (e) => e.usuarioId === usuario.id && e.suspensaoAte && new Date(e.suspensaoAte) > new Date()
+          );
 
-          if (emprestimosUsuario.length > 2) {
+          if (ativos.length > 2) {
             usuario.ativo = "inativo";
           }
         }
-        this.usuarioRepository.atualizaUsuario(usuario.cpf, usuario);
+
+        await this.usuarioRepository.atualizaUsuario(usuario.cpf, usuario);
       }
     }
   }
 
-  private async obterLimitesEmprestimo(categoriaId: number, cursoId: number, livroCategoriaId: number): Promise<{ limiteLivros: number, prazoDias: number }> {
-    const categorias = await this.catalogoService.listarCategoriasUsuarios()
-    const categoria = categorias.find(c => c.id === categoriaId);
+  private async obterLimitesEmprestimo(
+    categoriaId: number,
+    cursoId: number,
+    livroCategoriaId: number
+  ): Promise<{ limiteLivros: number; prazoDias: number }> {
+    const categorias = await this.catalogoService.listarCategoriasUsuarios();
+    const categoria = categorias.find((c) => c.id === categoriaId);
     if (!categoria) {
       throw new Error("Categoria de usuário não permite empréstimos!!!");
     }
@@ -143,7 +179,7 @@ export class EmprestimoService {
         const livroArea = cursoId == livroCategoriaId;
         return {
           limiteLivros: 3,
-          prazoDias: livroArea ? 30 : 15
+          prazoDias: livroArea ? 30 : 15,
         };
       default:
         throw new Error("Nao foi possivel emprestar!!!");
